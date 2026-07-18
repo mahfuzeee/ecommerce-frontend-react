@@ -1,8 +1,19 @@
 import { FaArrowRotateRight } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 import Paginate from "../helper/Paginate";
+import useCategory from "../hooks/useCategory";
 
 const AllProduct = () => {
+  const filter = { page: 1, limit: 10 };
+  const { data, isLoading } = useCategory(filter);
+
+  if (!isLoading) {
+    const { categories, pagination } = data;
+    //console.log(categories);
+    console.log(pagination);
+  } else {
+    console.log("loading");
+  }
   return (
     <>
       <section className="breadcrumb breadcrumb-one padding-y-60 section-bg position-relative z-index-1 overflow-hidden">
