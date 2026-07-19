@@ -28,6 +28,21 @@ export const reviewApi = axios.create({
   baseURL: `${baseURL}/reviews`,
 });
 
+//order api
+export const orderApi = axios.create({
+  baseURL: `${baseURL}/orders`,
+});
+
+//cart api
+export const cartApi = axios.create({
+  baseURL: `${baseURL}/cart`,
+});
+
+//invoice api
+export const invoiceApi = axios.create({
+  baseURL: `${baseURL}/invoices`,
+});
+
 //file api
 export const apiFile = axios.create({
   baseURL: baseURLFile,
