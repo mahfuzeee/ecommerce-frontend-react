@@ -1,7 +1,31 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import ThemeToggle from "./ThemeToggle";
+import userStore from "../store/user.store";
 
 const Register = () => {
+  const { userRegisterLoading, userRegisterRequest } = userStore();
+
+  const [formData, setFormData] = useState({});
+
+  const navigate = useNavigate();
+
+  //Function for onChange
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    userRegisterRequest(formData).then((res) => {
+      if (res) {
+        navigate("/login");
+      }
+    });
+  };
   return (
     <>
       {/* ================================== Account Page Start =========================== */}
@@ -60,7 +84,9 @@ const Register = () => {
                   <div className="position-relative">
                     <input
                       required
+                      name="email"
                       type="email"
+                      onChange={handleChange}
                       className="common-input common-input--bg common-input--withIcon"
                       id="email"
                       placeholder="infoname@mail.com"
@@ -80,7 +106,9 @@ const Register = () => {
                   <div className="position-relative">
                     <input
                       required
+                      name="password"
                       type="password"
+                      onChange={handleChange}
                       className="common-input common-input--bg common-input--withIcon"
                       id="your-password"
                       placeholder="6+ characters, 1 Capital letter"
@@ -95,8 +123,13 @@ const Register = () => {
                 </div>
 
                 <div className="col-12">
-                  <button className="btn btn-main btn-lg w-100 pill">
-                    Create An Account
+                  <button
+                    onClick={handleSubmit}
+                    disabled={userRegisterLoading}
+                    className="btn btn-main btn-lg w-100 pill"
+                  >
+                    {" "}
+                    {userRegisterLoading ? "Loading..." : "Create An Account"}
                   </button>
                 </div>
 
