@@ -6,14 +6,15 @@ import useCategory from "../hooks/useCategory";
 const AllProduct = () => {
   const filter = { page: 1, limit: 10 };
   const { data, isLoading } = useCategory(filter);
-
-  if (!isLoading) {
-    const { categories, pagination } = data;
-    //console.log(categories);
+  if(!isLoading) {
+    const {pagination} = data;
     console.log(pagination);
+    
   } else {
-    console.log("loading");
+    console.log("loading..");
+    
   }
+
   return (
     <>
       <section className="breadcrumb breadcrumb-one padding-y-60 section-bg position-relative z-index-1 overflow-hidden">

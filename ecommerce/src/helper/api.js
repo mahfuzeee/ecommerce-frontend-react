@@ -23,6 +23,11 @@ export const productApi = axios.create({
   baseURL: `${baseURL}/products`,
 });
 
+//review api
+export const reviewApi = axios.create({
+  baseURL: `${baseURL}/reviews`,
+});
+
 //file api
 export const apiFile = axios.create({
   baseURL: baseURLFile,
