@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import Slider from "react-slick";
+import useCategory from "../hooks/useCategory";
 
 const PopularOne = () => {
   function SampleNextArrow(props) {
@@ -58,6 +59,11 @@ const PopularOne = () => {
       },
     ],
   };
+
+  const { data, isLoading } = useCategory({ page: 1, limit: 10 });
+
+  const { categories = [], pagination = {} } = data || {};
+
   return (
     <section className="popular padding-y-120 overflow-hidden">
       <div className="container container-two">
@@ -66,91 +72,27 @@ const PopularOne = () => {
         </div>
         <div className="popular-slider arrow-style-two row gy-4">
           <Slider {...settings}>
-            <div>
-              <Link
-                to={`all-products?category_id=0&brand_id=0&remark=0&keyword=0&per_page=12&page_no=1`}
-                className="popular-item w-100"
-              >
-                <span className="popular-item__icon">
-                  <img
-                    src={`https://placehold.co/60x60`}
-                    alt=""
-                  />{" "}
-                </span>
-                <h6 className="popular-item__title font-18">Health & Beauty</h6>
-                <p>
-                  <span className="popular-item__qty text-body">0</span>
-                </p>
-              </Link>
-            </div>
-            <div>
-              <Link
-                to={`all-products?category_id=0&brand_id=0&remark=0&keyword=0&per_page=12&page_no=1`}
-                className="popular-item w-100"
-              >
-                <span className="popular-item__icon">
-                  <img
-                    src={`https://placehold.co/60x60`}
-                    alt=""
-                  />{" "}
-                </span>
-                <h6 className="popular-item__title font-18">Home & Kitchen</h6>
-                <p>
-                  <span className="popular-item__qty text-body">1</span>
-                </p>
-              </Link>
-            </div>
-            <div>
-              <Link
-                to={`all-products?category_id=0&brand_id=0&remark=0&keyword=0&per_page=12&page_no=1`}
-                className="popular-item w-100"
-              >
-                <span className="popular-item__icon">
-                  <img
-                    src={`https://placehold.co/60x60`}
-                    alt=""
-                  />{" "}
-                </span>
-                <h6 className="popular-item__title font-18">Electronics</h6>
-                <p>
-                  <span className="popular-item__qty text-body">3</span>
-                </p>
-              </Link>
-            </div>
-            <div>
-              <Link
-                to={`all-products?category_id=0&brand_id=0&remark=0&keyword=0&per_page=12&page_no=1`}
-                className="popular-item w-100"
-              >
-                <span className="popular-item__icon">
-                  <img
-                    src={`https://placehold.co/60x60`}
-                    alt=""
-                  />{" "}
-                </span>
-                <h6 className="popular-item__title font-18">Women's Fashion</h6>
-                <p>
-                  <span className="popular-item__qty text-body">5</span>
-                </p>
-              </Link>
-            </div>
-            <div>
-              <Link
-                to={`all-products?category_id=0&brand_id=0&remark=0&keyword=0&per_page=12&page_no=1`}
-                className="popular-item w-100"
-              >
-                <span className="popular-item__icon">
-                  <img
-                    src={`https://placehold.co/60x60`}
-                    alt=""
-                  />{" "}
-                </span>
-                <h6 className="popular-item__title font-18">Men's Fashion</h6>
-                <p>
-                  <span className="popular-item__qty text-body">2</span>
-                </p>
-              </Link>
-            </div>
+            {!isLoading &&
+              categories.map((category, index) => (
+                <div key={index}>
+                  <Link
+                    to={`all-products?category_id=${category._id}&brand_id=0&remark=0&keyword=0&per_page=12&page_no=1`}
+                    className="popular-item w-100 h-120"
+                  >
+                    <span className="popular-item__icon">
+                      <img src={category.images} alt={category.slug} />{" "}
+                    </span>
+                    <h6 className="popular-item__title font-18">
+                      {category.name}
+                    </h6>
+                    <p>
+                      <span className="popular-item__qty text-body">
+                        {category.count}
+                      </span>
+                    </p>
+                  </Link>
+                </div>
+              ))}
           </Slider>
         </div>
         <div className="popular__button text-center">

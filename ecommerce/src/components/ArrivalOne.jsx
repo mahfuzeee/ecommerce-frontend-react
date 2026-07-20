@@ -1,6 +1,11 @@
 import { Link } from "react-router-dom";
+import { useProduct } from "../hooks/useProduct";
 
 const ArrivalOne = () => {
+  const { data, isLoading } = useProduct({ page: 1, limit: 6 });
+
+  const { products = [] } = data || {};
+
   return (
     <section className="arrival-product padding-y-120 section-bg position-relative z-index-1">
       <img
@@ -19,52 +24,58 @@ const ArrivalOne = () => {
         </div>
 
         <div className="row gy-4">
-          {[...Array(6)].map((_,i) => (
-            <div key={i} className="col-xl-3 col-lg-4 col-sm-6">
-              <div className="product-item">
-                <div className="product-item__thumb d-flex">
-                  <Link
-                    to={`/product-details?product_id=0`}
-                    className="link w-100"
-                  >
-                    <img
-                      src={`https://placehold.co/200x200`}
-                      alt=""
-                      className="cover-img"
-                    />
-                  </Link>
-                </div>
-                <div className="product-item__content">
-                  <h6 className="product-item__title">
-                    <Link to={`/product-details?product_id=0`} className="link">
-                      Baby Sleeping Bag for Infant Boys Girls
+          {!isLoading &&
+            products.map((product, i) => (
+              <div key={i} className="col-xl-3 col-lg-4 col-sm-6">
+                <div className="product-item">
+                  <div className="product-item__thumb d-flex">
+                    <Link
+                      to={`/product-details?product_id=${product._id}`}
+                      className="link w-100"
+                    >
+                      <img
+                        src={product.images[0]}
+                        alt={product.slug}
+                        className="cover-img"
+                      />
                     </Link>
-                  </h6>
-                  <div className="product-item__info flx-between gap-2">
-                    <span className="product-item__author">
-                      <span className="link hover-text-decoration-underline">
-                        Admin
-                      </span>
-                    </span>
                   </div>
-                  <div className="product-item__bottom flx-between  gap-2">
-                    <div className="flx-align gap-2">
-                      <h6 className="product-item__price mb-0">৳1230</h6>
-                      <span className="product-item__prevPrice text-decoration-line-through">
-                        ৳1450
+                  <div className="product-item__content">
+                    <h6 className="product-item__title">
+                      <Link
+                        to={`/product-details?product_id=${product._id}`}
+                        className="link"
+                      >
+                        {product.name}
+                      </Link>
+                    </h6>
+                    <div className="product-item__info flx-between gap-2">
+                      <span className="product-item__author">
+                        <span className="link hover-text-decoration-underline">
+                          Admin
+                        </span>
                       </span>
                     </div>
-                    <Link
-                      to={`/product-details?product_id=0`}
-                      className="btn btn-outline-light btn-sm pill"
-                    >
-                      View Product
-                    </Link>
+                    <div className="product-item__bottom flx-between  gap-2">
+                      <div className="flx-align gap-2">
+                        <h6 className="product-item__price mb-0">
+                          ৳{product.price}
+                        </h6>
+                        <span className="product-item__prevPrice text-decoration-line-through">
+                          ৳{product.price}
+                        </span>
+                      </div>
+                      <Link
+                        to={`/product-details?product_id=${product._id}`}
+                        className="btn btn-outline-light btn-sm pill"
+                      >
+                        View Product
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
 
         <div className="text-center mt-64">

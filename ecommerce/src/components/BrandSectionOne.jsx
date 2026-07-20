@@ -1,12 +1,10 @@
 import Slider from "react-slick";
+import { useBrand } from "../hooks/useBrand";
+
 const BrandSectionOne = () => {
-  const allBrand = [
-    { brand_img: "https://placehold.co/50x50", brand_name: "Jewellery" },
-    { brand_img: "https://placehold.co/50x50", brand_name: "Toy" },
-    { brand_img: "https://placehold.co/50x50", brand_name: "Laptop" },
-    { brand_img: "https://placehold.co/50x50", brand_name: "Computer" },
-    { brand_img: "https://placehold.co/50x50", brand_name: "Accessories" },
-  ];
+  const { data, isLoading } = useBrand({ page: 1, limit: 10 });
+
+  const { brands = [] } = data || {};
 
   const settings = {
     dots: false,
@@ -59,15 +57,16 @@ const BrandSectionOne = () => {
       <div className="container container">
         <div className="brand-slider">
           <Slider {...settings}>
-            {allBrand?.map((item, index) => (
-              <div
-                key={index}
-                className="brand-item inner d-grid gap-2 text-center align-items-center justify-content-center"
-              >
-                <img src={`${item?.brand_img}`} alt="brand" />
-                <p>{item?.brand_name}</p>
-              </div>
-            ))}
+            {!isLoading &&
+              brands.map((brand, index) => (
+                <div
+                  key={index}
+                  className="brand-item inner d-grid gap-2 text-center align-items-center justify-content-center"
+                >
+                  <img src={brand.logo} alt="brand" />
+                  <p>{brand.name}</p>
+                </div>
+              ))}
           </Slider>
         </div>
       </div>

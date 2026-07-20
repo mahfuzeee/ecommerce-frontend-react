@@ -2,18 +2,24 @@ import { FaArrowRotateRight } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 import Paginate from "../helper/Paginate";
 import useCategory from "../hooks/useCategory";
+import { useState } from "react";
 
 const AllProduct = () => {
+  //State for button view
+  const [view, setView] = useState("grid-view");
+
   const filter = { page: 1, limit: 10 };
   const { data, isLoading } = useCategory(filter);
-  if(!isLoading) {
-    const {pagination} = data;
+  if (!isLoading) {
+    const { pagination } = data;
     console.log(pagination);
-    
   } else {
     console.log("loading..");
-    
   }
+
+  const handleView = (buttonName) => {
+    setView(buttonName);
+  };
 
   return (
     <>
@@ -60,7 +66,12 @@ const AllProduct = () => {
           </div>
         </div>
       </section>
-      <section className={`all-product padding-y-120`}>
+
+      {/*==== all product list view or grid view section===== */}
+
+      <section
+        className={`all-product padding-y-120 ${view === "list-view" && "list-view"}`}
+      >
         <div className="container container-two">
           <div className="row">
             <div className="col-lg-12">
@@ -79,12 +90,14 @@ const AllProduct = () => {
 
                 <div className="list-grid d-flex align-items-center gap-2">
                   <button
-                    className={`list-grid__button list-button d-sm-flex d-none text-body`}
+                    onClick={() => handleView("list-view")}
+                    className={`list-grid__button list-button d-sm-flex d-none text-body ${view === "list-view" && "active"}`}
                   >
                     <i className="las la-list" />
                   </button>
                   <button
-                    className={`list-grid__button grid-button d-sm-flex d-none  text-body`}
+                    onClick={() => handleView("grid-view")}
+                    className={`list-grid__button grid-button d-sm-flex d-none text-body ${view === "grid-view" && "active"}`}
                   >
                     <i className="las la-border-all" />
                   </button>
