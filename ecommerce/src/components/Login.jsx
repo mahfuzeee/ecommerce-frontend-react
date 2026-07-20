@@ -1,7 +1,31 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import ThemeToggle from "./ThemeToggle";
+import userStore from "../store/user.store";
 
 const Login = () => {
+  const { userLoginLoading, userLoginRequest } = userStore();
+
+  const [formData, setFormData] = useState({});
+
+  const navigate = useNavigate();
+
+  //Function for onChange
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    userLoginRequest(formData).then((res) => {
+      if (res) {
+        navigate("/dashboard-profile");
+      }
+    });
+  };
   return (
     <>
       {/* ================================== Account Page Start =========================== */}
@@ -60,6 +84,8 @@ const Login = () => {
                   <div className="position-relative">
                     <input
                       required
+                      onChange={handleChange}
+                      name="email"
                       type="email"
                       className="common-input common-input--bg common-input--withIcon"
                       id="email"
@@ -80,6 +106,8 @@ const Login = () => {
                   <div className="position-relative">
                     <input
                       required
+                      onChange={handleChange}
+                      name="password"
                       type="password"
                       className="common-input common-input--bg common-input--withIcon"
                       id="your-password"
@@ -95,8 +123,12 @@ const Login = () => {
                 </div>
 
                 <div className="col-12">
-                  <button className="btn btn-main btn-lg w-100 pill">
-                    Sign In
+                  <button
+                    onClick={handleSubmit}
+                    disabled={userLoginLoading}
+                    className="btn btn-main btn-lg w-100 pill"
+                  >
+                    {userLoginLoading ? "Please Wait..." : "Sign In"}
                   </button>
                 </div>
 

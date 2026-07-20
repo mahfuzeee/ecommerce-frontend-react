@@ -100,7 +100,7 @@ const userStore = create((set) => ({
       }
     } catch (error) {
       console.log(error);
-      ErrorToast("Something went wrong");
+      ErrorToast("Please login first");
       return false;
     }
   },

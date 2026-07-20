@@ -3,6 +3,9 @@ import axios from "axios";
 const baseURL = import.meta.env.VITE_BASE_URL || "http://localhost:3000/api/v1";
 const baseURLFile = import.meta.env.VITE_BASE_URL_FILE;
 
+axios.defaults.withCredentials = true; //for cookie
+
+//User api
 export const userApi = axios.create({
   baseURL: `${baseURL}/user`,
 });
@@ -10,7 +13,6 @@ export const userApi = axios.create({
 //Brand api
 export const brandApi = axios.create({
   baseURL: `${baseURL}/brands`,
-  withCredentials: true,
 });
 
 //Category api
