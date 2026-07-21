@@ -43,6 +43,11 @@ const AllProduct = () => {
   const { products = [], pagination = {} } = productData || {};
 
   //console.log(JSON.stringify(pagination));
+  //Destructring category data
+  const { categories = [] } = categoryData || {};
+
+  //Destructring brand data
+  const { brands = [] } = brandData || {};
 
   const handleView = (buttonName) => {
     setView(buttonName);
@@ -54,6 +59,32 @@ const AllProduct = () => {
       const params = new URLSearchParams(prev);
 
       params.set("page", selected + 1);
+
+      return params;
+    });
+  };
+
+  //Handle category change
+  const handleCategoryChange = (category_id) => {
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+
+      params.set("category_id", category_id);
+
+      params.set("page", 1);
+
+      return params;
+    });
+  };
+
+  //Handle brand change
+  const handleBrandChange = (brand_id) => {
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+
+      params.set("brand_id", brand_id);
+
+      params.set("page", 1);
 
       return params;
     });
@@ -86,6 +117,7 @@ const AllProduct = () => {
       return params;
     });
   };
+
   return (
     <>
       <section className="breadcrumb breadcrumb-one padding-y-60 section-bg position-relative z-index-1 overflow-hidden">
@@ -199,31 +231,18 @@ const AllProduct = () => {
                     </button>
                     <div className="filter-sidebar__content">
                       <ul className="filter-sidebar-list">
-                        <li className="filter-sidebar-list__item courser">
-                          <span className="filter-sidebar-list__text">
-                            Home Appliances <span className="qty">2</span>
-                          </span>
-                        </li>
-                        <li className="filter-sidebar-list__item courser">
-                          <span className="filter-sidebar-list__text">
-                            Jewellery <span className="qty">0</span>
-                          </span>
-                        </li>
-                        <li className="filter-sidebar-list__item courser">
-                          <span className="filter-sidebar-list__text">
-                            Groceries <span className="qty">3</span>
-                          </span>
-                        </li>
-                        <li className="filter-sidebar-list__item courser">
-                          <span className="filter-sidebar-list__text">
-                            Men's <span className="qty">5</span>
-                          </span>
-                        </li>
-                        <li className="filter-sidebar-list__item courser">
-                          <span className="filter-sidebar-list__text">
-                            Women's <span className="qty">9</span>
-                          </span>
-                        </li>
+                        {!categoryLoading &&
+                          categories.map((category, index) => (
+                            <li
+                              key={index}
+                              onClick={() => handleCategoryChange(category._id)}
+                              className="filter-sidebar-list__item courser"
+                            >
+                              <span className="filter-sidebar-list__text">
+                                {category.name} <span className="qty">9</span>
+                              </span>
+                            </li>
+                          ))}
                       </ul>
                     </div>
                   </div>
@@ -236,26 +255,18 @@ const AllProduct = () => {
                     </button>
                     <div className="filter-sidebar__content">
                       <ul className="filter-sidebar-list">
-                        <li className="filter-sidebar-list__item courser">
-                          <span className="filter-sidebar-list__text">
-                            No Brand <span className="qty">10</span>
-                          </span>
-                        </li>
-                        <li className="filter-sidebar-list__item courser">
-                          <span className="filter-sidebar-list__text">
-                            Philips <span className="qty">3</span>
-                          </span>
-                        </li>
-                        <li className="filter-sidebar-list__item courser">
-                          <span className="filter-sidebar-list__text">
-                            Dell <span className="qty">8</span>
-                          </span>
-                        </li>
-                        <li className="filter-sidebar-list__item courser">
-                          <span className="filter-sidebar-list__text">
-                            Lg <span className="qty">5</span>
-                          </span>
-                        </li>
+                        {!brandLoading &&
+                          brands.map((brand, index) => (
+                            <li
+                              key={index}
+                              onClick={() => handleBrandChange(brand._id)}
+                              className="filter-sidebar-list__item courser"
+                            >
+                              <span className="filter-sidebar-list__text">
+                                {brand.name} <span className="qty">10</span>
+                              </span>
+                            </li>
+                          ))}
                       </ul>
                     </div>
                   </div>
@@ -272,6 +283,13 @@ const AllProduct = () => {
                   aria-labelledby="pills-product-tab"
                   tabIndex={0}
                 >
+                  {products?.length === 0 && (
+                    <div className=" flx-align gap-2 justify-content-center">
+                      <h4>
+                        <p className="mt-5">No product found!</p>
+                      </h4>
+                    </div>
+                  )}
                   <div className="row gy-4 list-grid-wrapper">
                     {!productLoading &&
                       products.map((product, index) => (
@@ -306,7 +324,7 @@ const AllProduct = () => {
                                 </span>
                                 <span className="product-item__author">
                                   <span className="btn btn-main pill category">
-                                    {product?.category[0]?.name}
+                                    {product?.category?.name}
                                   </span>
                                 </span>
                               </div>
@@ -337,12 +355,14 @@ const AllProduct = () => {
 
                   <nav aria-label="Page navigation example">
                     {/* Paginate */}
-                    <Paginate
-                      handelPageClick={handlePageChange}
-                      page_no={filters.page}
-                      per_page={filters.limit}
-                      totalCount={pagination?.totalProducts}
-                    />
+                    {products.length > 0 && (
+                      <Paginate
+                        handelPageClick={handlePageChange}
+                        page_no={filters.page}
+                        per_page={filters.limit}
+                        totalCount={pagination?.totalProducts}
+                      />
+                    )}
                   </nav>
                 </div>
               </div>

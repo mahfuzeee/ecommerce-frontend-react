@@ -1,5 +1,6 @@
 import Slider from "react-slick";
 import useBrand from "../hooks/useBrand";
+import { Link } from "react-router-dom";
 
 const BrandSectionOne = () => {
   const { data, isLoading } = useBrand({ page: 1, limit: 10 });
@@ -63,12 +64,16 @@ const BrandSectionOne = () => {
                   key={index}
                   className="brand-item inner d-grid gap-2 text-center align-items-center justify-content-center"
                 >
-                  <img
-                    style={{ height: "90px", width: "80px" }}
-                    src={brand.logo}
-                    alt="brand"
-                  />
-                  <p>{brand.name}</p>
+                  <Link
+                    to={`all-products?category_id=${""}&brand_id=${brand._id}&remark=${""}&keyword=${""}&limit=12&page=1`}
+                  >
+                    <img
+                      style={{ height: "90px", width: "80px" }}
+                      src={brand.logo}
+                      alt="brand"
+                    />
+                    <p>{brand.name}</p>
+                  </Link>
                 </div>
               ))}
           </Slider>

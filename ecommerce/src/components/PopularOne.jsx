@@ -76,7 +76,7 @@ const PopularOne = () => {
               categories.map((category, index) => (
                 <div key={index}>
                   <Link
-                    to={`all-products?category_id=${category._id}&brand_id=0&remark=0&keyword=0&per_page=12&page_no=1`}
+                    to={`all-products?category_id=${category._id}&brand_id=${""}&remark=${""}&keyword=${""}&limit=12&page=1`}
                     className="popular-item w-100 h-120"
                   >
                     <span className="popular-item__icon">
@@ -91,7 +91,7 @@ const PopularOne = () => {
                     </h6>
                     <p>
                       <span className="popular-item__qty text-body">
-                        {category.count}
+                        {category.products_count}
                       </span>
                     </p>
                   </Link>
