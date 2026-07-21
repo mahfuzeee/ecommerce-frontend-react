@@ -80,7 +80,11 @@ const PopularOne = () => {
                     className="popular-item w-100 h-120"
                   >
                     <span className="popular-item__icon">
-                      <img src={category.images} alt={category.slug} />{" "}
+                      <img
+                        style={{ height: "130px", width: "120px" }}
+                        src={category.images}
+                        alt={category.slug}
+                      />{" "}
                     </span>
                     <h6 className="popular-item__title font-18">
                       {category.name}

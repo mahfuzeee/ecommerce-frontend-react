@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getAllProduct, getProduct } from "../api/product.api";
 
-export const useProduct = (pagination) => {
+const useProduct = (pagination) => {
   return useQuery({
     queryKey: ["products", pagination],
     queryFn: () => getAllProduct(pagination),
@@ -15,3 +15,5 @@ export const useSingleProduct = (id) => {
     queryFn: () => getProduct({ id }),
   });
 };
+
+export default useProduct;

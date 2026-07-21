@@ -1,5 +1,5 @@
 import Slider from "react-slick";
-import { useBrand } from "../hooks/useBrand";
+import useBrand from "../hooks/useBrand";
 
 const BrandSectionOne = () => {
   const { data, isLoading } = useBrand({ page: 1, limit: 10 });
@@ -63,7 +63,11 @@ const BrandSectionOne = () => {
                   key={index}
                   className="brand-item inner d-grid gap-2 text-center align-items-center justify-content-center"
                 >
-                  <img src={brand.logo} alt="brand" />
+                  <img
+                    style={{ height: "90px", width: "80px" }}
+                    src={brand.logo}
+                    alt="brand"
+                  />
                   <p>{brand.name}</p>
                 </div>
               ))}

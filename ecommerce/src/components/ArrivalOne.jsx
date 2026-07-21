@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useProduct } from "../hooks/useProduct";
+import useProduct from "../hooks/useProduct";
 
 const ArrivalOne = () => {
   const { data, isLoading } = useProduct({ page: 1, limit: 6 });
