@@ -1,5 +1,5 @@
 import { FaArrowRotateRight } from "react-icons/fa6";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import Paginate from "../helper/Paginate";
 import useCategory from "../hooks/useCategory";
 import useBrand from "../hooks/useBrand";
@@ -9,11 +9,20 @@ import { useState, useEffect } from "react";
 const AllProduct = () => {
   //State for button view
   const [view, setView] = useState("grid-view");
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
-  const [brand, setBrand] = useState("all");
-  const [category, setCategory] = useState("all");
-  const [search, setSearch] = useState("");
+  //Search params
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const filters = {
+    page: Number(searchParams.get("page")) || 1,
+
+    limit: Number(searchParams.get("limit")) || 12,
+
+    brand_id: searchParams.get("brand_id") || "",
+
+    category_id: searchParams.get("category_id") || "",
+
+    keyword: searchParams.get("keyword") || "",
+  };
 
   //Data fetching using hooks
   const { data: brandData, isLoading: brandLoading } = useBrand({
@@ -26,19 +35,26 @@ const AllProduct = () => {
     limit: 100,
   });
 
-  const { data: productData, isLoading: productLoading } = useProduct({
-    page,
-    limit,
-    brand,
-    category,
-    search,
-  });
+  const { data: productData, isLoading: productLoading } = useProduct(filters);
 
   //Destructring Product data
-  const { products, pagination } = productData || {};
+  const { products = [], pagination = {} } = productData || {};
+
+  //console.log(JSON.stringify(pagination));
 
   const handleView = (buttonName) => {
     setView(buttonName);
+  };
+
+  //Handle page change
+  const handlePageChange = ({ selected }) => {
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+
+      params.set("page", selected + 1);
+
+      return params;
+    });
   };
 
   return (
@@ -253,14 +269,22 @@ const AllProduct = () => {
                                     Admin
                                   </span>
                                 </span>
+                                <span className="product-item__author">
+                                  <span className="btn btn-main pill category">
+                                    {product?.category[0]?.name}
+                                  </span>
+                                </span>
                               </div>
                               <div className="product-item__bottom flx-between  gap-2">
                                 <div className="flx-align gap-2">
                                   <h6 className="product-item__price mb-0">
-                                    ৳{product?.price}
+                                    ৳
+                                    {product?.isDiscounted
+                                      ? product?.price
+                                      : product?.price}
                                   </h6>
                                   <span className="product-item__prevPrice text-decoration-line-through">
-                                    ৳{product?.price + 100}
+                                    ৳{product?.price}
                                   </span>
                                 </div>
                                 <Link
@@ -279,10 +303,10 @@ const AllProduct = () => {
                   <nav aria-label="Page navigation example">
                     {/* Paginate */}
                     <Paginate
-                      handelPageClick={() => {}}
-                      page_no={1}
-                      per_page={5}
-                      totalCount={10}
+                      handelPageClick={handlePageChange}
+                      page_no={filters.page}
+                      per_page={filters.limit}
+                      totalCount={pagination?.totalProducts}
                     />
                   </nav>
                 </div>

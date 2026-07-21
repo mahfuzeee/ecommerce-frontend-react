@@ -1,10 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { getAllProduct, getProduct } from "../api/product.api";
 
-const useProduct = (pagination) => {
+const useProduct = (filter) => {
+  const { page, limit, brand_id, category_id, keyword } = filter;
   return useQuery({
-    queryKey: ["products", pagination],
-    queryFn: () => getAllProduct(pagination),
+    queryKey: ["products", page, limit, brand_id, category_id, keyword],
+    queryFn: () => getAllProduct(filter),
     keepPreviousData: true,
   });
 };

@@ -9,7 +9,7 @@ const HeaderOne = () => {
   useEffect(() => {
     var offCanvasNav = document.getElementById("offcanvas-navigation");
     var menuExpand = offCanvasNav.querySelectorAll(
-      ".has-submenu > .nav-menu__link"
+      ".has-submenu > .nav-menu__link",
     );
     var numMenuExpand = menuExpand.length;
 
@@ -75,7 +75,7 @@ const HeaderOne = () => {
                 </li>
                 <li className="nav-menu__item">
                   <NavLink
-                    to="/all-products?category_id=0&brand_id=0&remark=0&keyword=0&per_page=12&page_no=1"
+                    to={`/all-products?category_id=${""}&brand_id=${""}&remark=${""}&keyword=${""}&limit=12&page=1`}
                     className="nav-submenu__link"
                   >
                     All Products
