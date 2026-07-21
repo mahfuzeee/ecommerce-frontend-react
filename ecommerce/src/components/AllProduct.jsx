@@ -9,6 +9,8 @@ import { useState, useEffect } from "react";
 const AllProduct = () => {
   //State for button view
   const [view, setView] = useState("grid-view");
+  //state for search
+  const [search, setSearch] = useState("");
   //Search params
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -57,6 +59,33 @@ const AllProduct = () => {
     });
   };
 
+  //Handle search keword
+  const handleSearch = (searchKeyword) => {
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+
+      params.set("keyword", searchKeyword);
+
+      params.set("page", 1);
+
+      return params;
+    });
+  };
+
+  //Handle Reset
+  const handleReset = () => {
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+
+      params.delete("keyword");
+
+      params.set("page", 1);
+      params.delete("brand_id");
+      params.delete("category_id");
+
+      return params;
+    });
+  };
   return (
     <>
       <section className="breadcrumb breadcrumb-one padding-y-60 section-bg position-relative z-index-1 overflow-hidden">
@@ -90,10 +119,15 @@ const AllProduct = () => {
                 <div className="search-box">
                   <input
                     type="text"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
                     className="common-input common-input--lg pill shadow-sm"
                     placeholder="Search product & more..."
                   />
-                  <button className="btn btn-main btn-icon icon border-0">
+                  <button
+                    onClick={() => handleSearch(search)}
+                    className="btn btn-main btn-icon icon border-0"
+                  >
                     <img src="assets/images/icons/search.svg" alt="" />
                   </button>
                 </div>
@@ -115,6 +149,7 @@ const AllProduct = () => {
                 <div className="gap-3 flx-between">
                   <button
                     type="button"
+                    onClick={handleReset}
                     className="filter-tab__button btn btn-outline-light pill d-flex align-items-center"
                   >
                     <span className="icon icon-left">
