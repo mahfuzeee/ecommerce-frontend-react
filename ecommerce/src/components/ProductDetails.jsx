@@ -18,8 +18,21 @@ const ProductDetails = () => {
   const [searchParams] = useSearchParams();
   const id = searchParams.get("product_id");
 
+  //Product details dataset
+  const [productDetails, setProductDetails] = useState({
+    size: "",
+    color: "",
+    quantity: 1,
+    activeSize: null,
+    activeColor: null,
+  });
+
   const { data, isLoading } = useSingleProduct(id);
   const product = data || {};
+
+  const discount_percent = Math.round(
+    ((product?.price - product?.discountPrice) / product?.price) * 100,
+  );
 
   const StarRating = ({ star }) => {
     star = parseInt(star);
@@ -41,60 +54,41 @@ const ProductDetails = () => {
       <div className="container container-two">
         <div className="row gy-4">
           {/* Left Column - Product Images and Description */}
-          <div className="col-lg-6">
-            <div className="tab-content" id="pills-tabContent">
-              <div
-                className="tab-pane fade show active"
-                id="pills-product-details"
-                role="tabpanel"
-                aria-labelledby="pills-product-details-tab"
-                tabIndex={0}
-              >
-                {/* Product Details Content Start */}
-                <div className="product-details">
-                  <div>
-                    {/* Main Product Image */}
-                    <Swiper
-                      style={{
-                        "--swiper-navigation-color": "#fff",
-                        "--swiper-pagination-color": "#fff",
-                      }}
-                      spaceBetween={10}
-                      navigation={true}
-                      thumbs={{ swiper: thumbsSwiper }}
-                      modules={[FreeMode, Navigation, Thumbs]}
-                      className="mySwiper2"
-                    >
-                      {product?.images?.map((img, index) => (
-                        <SwiperSlide>
-                          <div key={index} className="main-product-image mb-3">
-                            <img src={img} />
-                          </div>
-                        </SwiperSlide>
-                      ))}
-                    </Swiper>
-                    {/* <div className="main-product-image mb-3">
-                      <img
-                        src={product.images[0]}
-                        alt="Product"
-                        style={{
-                          width: "100%",
-                          height: "500px",
-                          borderRadius: "8px",
-                        }}
-                      />
-                    </div> */}
 
-                    {/* Thumbnail Images */}
-                    <div className="product-thumbnails d-flex gap-2">
+          {product === null ? (
+            <>
+              {[...Array(6)].map(() => {
+                <div className="col-lg-6">
+                  <div className="Skeleton">
+                    <Skeleton count={8} />
+                  </div>
+                </div>;
+              })}
+            </>
+          ) : (
+            <div className="col-lg-6">
+              <div className="tab-content" id="pills-tabContent">
+                <div
+                  className="tab-pane fade show active"
+                  id="pills-product-details"
+                  role="tabpanel"
+                  aria-labelledby="pills-product-details-tab"
+                  tabIndex={0}
+                >
+                  {/* Product Details Content Start */}
+                  <div className="product-details">
+                    <div>
+                      {/* Main Product Image */}
                       <Swiper
-                        onSwiper={setThumbsSwiper}
+                        style={{
+                          "--swiper-navigation-color": "#fff",
+                          "--swiper-pagination-color": "#fff",
+                        }}
                         spaceBetween={10}
-                        slidesPerView={4}
-                        freeMode={true}
-                        watchSlidesProgress={true}
+                        navigation={true}
+                        thumbs={{ swiper: thumbsSwiper }}
                         modules={[FreeMode, Navigation, Thumbs]}
-                        className="mySwiper"
+                        className="mySwiper2"
                       >
                         {product?.images?.map((img, index) => (
                           <SwiperSlide>
@@ -107,89 +101,90 @@ const ProductDetails = () => {
                           </SwiperSlide>
                         ))}
                       </Swiper>
-                      {/* <div style={{ width: "23%" }}>
-                        <img
-                          src={product.images[1]}
-                          alt={`Thumbnail`}
-                          style={{
-                            width: "100%",
-                            height: "90px",
-                            borderRadius: "4px",
-                            cursor: "pointer",
-                          }}
-                        />
+
+                      {/* Thumbnail Images */}
+                      <div className="product-thumbnails d-flex gap-2">
+                        <Swiper
+                          onSwiper={setThumbsSwiper}
+                          spaceBetween={10}
+                          slidesPerView={4}
+                          freeMode={true}
+                          watchSlidesProgress={true}
+                          modules={[FreeMode, Navigation, Thumbs]}
+                          className="mySwiper"
+                        >
+                          {product?.images?.map((img, index) => (
+                            <SwiperSlide>
+                              <div
+                                key={index}
+                                className="main-product-image mb-3"
+                              >
+                                <img src={img} />
+                              </div>
+                            </SwiperSlide>
+                          ))}
+                        </Swiper>
                       </div>
-                      <div style={{ width: "23%" }}>
-                        <img
-                          src={product.images[2]}
-                          alt={`Thumbnail`}
-                          style={{
-                            width: "100%",
-                            borderRadius: "4px",
-                            cursor: "pointer",
-                          }}
-                        />
-                      </div> */}
+                    </div>
+
+                    <h5 className="product-details__desc mt-4">
+                      Product Description
+                    </h5>
+                    <div className="product-details__item">
+                      {product.description}
                     </div>
                   </div>
-
-                  <h5 className="product-details__desc mt-4">
-                    Product Description
-                  </h5>
-                  <div className="product-details__item">
-                    {product.description}
-                  </div>
+                  {/* Product Details Content End */}
                 </div>
-                {/* Product Details Content End */}
-              </div>
 
-              {/* Reviews Tab */}
-              <div
-                className="tab-pane fade"
-                id="pills-rating"
-                role="tabpanel"
-                aria-labelledby="pills-rating-tab"
-                tabIndex={0}
-              >
-                <div className="product-review-wrapper">
-                  <div className="product-review">
-                    <div className="product-review__top flx-between">
-                      <div className="product-review__rating flx-align">
-                        <div className="d-flex align-items-center gap-1">
-                          <div className="star">
-                            <StarRating star={5} />
+                {/* Reviews Tab */}
+                <div
+                  className="tab-pane fade"
+                  id="pills-rating"
+                  role="tabpanel"
+                  aria-labelledby="pills-rating-tab"
+                  tabIndex={0}
+                >
+                  <div className="product-review-wrapper">
+                    <div className="product-review">
+                      <div className="product-review__top flx-between">
+                        <div className="product-review__rating flx-align">
+                          <div className="d-flex align-items-center gap-1">
+                            <div className="star">
+                              <StarRating star={5} />
+                            </div>
+                            <span className="star-rating__text text-body">
+                              5.0
+                            </span>
                           </div>
-                          <span className="star-rating__text text-body">
-                            5.0
+                          <span className="product-review__reason">
+                            For{" "}
+                            <span className="product-review__subject">
+                              Customer Support
+                            </span>
                           </span>
                         </div>
-                        <span className="product-review__reason">
-                          For{" "}
-                          <span className="product-review__subject">
-                            Customer Support
-                          </span>
-                        </span>
+                        <div className="product-review__date">
+                          by{" "}
+                          <strong className="product-review__user text--base">
+                            John Doe
+                          </strong>{" "}
+                          (Dec 1, 2024)
+                        </div>
                       </div>
-                      <div className="product-review__date">
-                        by{" "}
-                        <strong className="product-review__user text--base">
-                          John Doe
-                        </strong>{" "}
-                        (Dec 1, 2024)
+                      <div className="product-review__body">
+                        <p className="product-review__desc">
+                          Lorem ipsum dolor sit amet, consectetur adipiscing
+                          elit. Nullam nec metus vel ante finibus facilisis.
+                          Nullam nec metus vel ante finibus facilisis.
+                        </p>
                       </div>
-                    </div>
-                    <div className="product-review__body">
-                      <p className="product-review__desc">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                        Nullam nec metus vel ante finibus facilisis. Nullam nec
-                        metus vel ante finibus facilisis.
-                      </p>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Right Column - Product Info and Purchase Options */}
           <div className="col-lg-6">
@@ -201,48 +196,133 @@ const ProductDetails = () => {
 
                 <div className="price py-3">
                   <h4>
-                    ৳1200
-                    <del>৳1500 </del>{" "}
-                    <span className="discount_percent">- 20% Off</span>
+                    ৳
+                    {product?.isDiscounted
+                      ? product?.discountPrice
+                      : product?.price}
+                    <del>
+                      {product?.isDiscounted ? `৳${product?.price}` : ""}
+                    </del>{" "}
+                    {product.isDiscounted && (
+                      <span className="discount_percent">
+                        - {discount_percent}% Off
+                      </span>
+                    )}
                   </h4>
                   <p>
-                    High quality cotton t-shirt with modern design and
-                    comfortable fit
+                    {/* {product !== null &&
+                      product?.description.split(" ").slice(0, 20).join(" ")} */}
                   </p>
                 </div>
 
                 <div className="size py-3">
-                  <h5>Size: M</h5>
+                  <h5>Size: {productDetails?.size}</h5>
                   <div className="size_varient">
-                    <button>M</button>
-                    <button>L</button>
-                    <button>XL</button>
+                    {["XXL", "XL", "L", "M", "S"].map((size, index) => (
+                      <button
+                        className={
+                          productDetails?.activeSize === index ? "active" : ""
+                        }
+                        key={index}
+                        onClick={() =>
+                          setProductDetails({
+                            ...productDetails,
+                            size: size,
+                            activeSize: index,
+                          })
+                        }
+                      >
+                        {size}
+                      </button>
+                    ))}
                   </div>
                 </div>
 
                 <div className="color py-3">
-                  <h5>Color: Red</h5>
+                  <h5>Color: {productDetails?.color}</h5>
                   <div className="size_varient">
-                    <button>Red</button>
-                    <button>Blue</button>
-                    <button>Green</button>
+                    {["Red", "Green", "Blue"].map((color, index) => (
+                      <button
+                        className={
+                          productDetails?.activeColor === index ? "active" : ""
+                        }
+                        key={index}
+                        onClick={() =>
+                          setProductDetails({
+                            ...productDetails,
+                            color: color,
+                            activeColor: index,
+                          })
+                        }
+                      >
+                        {color}
+                      </button>
+                    ))}
                   </div>
                 </div>
 
                 <div className="quantity py-3">
                   <div className="w-100">
-                    <h5 className="text-danger">Stock: 10</h5>
+                    <h5 className="text-danger">Stock: {product?.stock}</h5>
                     <div className="inner">
-                      <button className="btn-quantity btn-decrease">-</button>
-                      <span className="quantity-product">5</span>
-                      <button className="btn-quantity btn-increase">+</button>
+                      <button
+                        className="btn-quantity btn-decrease"
+                        onClick={() =>
+                          setProductDetails({
+                            ...productDetails,
+                            quantity:
+                              productDetails?.quantity > 1
+                                ? productDetails?.quantity - 1
+                                : 1,
+                          })
+                        }
+                      >
+                        -
+                      </button>
+                      <span className="quantity-product">
+                        {productDetails?.quantity}
+                      </span>
+                      <button
+                        className="btn-quantity btn-increase"
+                        onClick={() =>
+                          setProductDetails({
+                            ...productDetails,
+                            quantity:
+                              product?.stock > productDetails?.quantity
+                                ? productDetails?.quantity + 1
+                                : product?.stock,
+                          })
+                        }
+                      >
+                        +
+                      </button>
                     </div>
                   </div>
                   <div className="w-100 pt-5">
-                    <button className="btn btn-main d-flex w-100 justify-content-center align-items-center gap-2 pill px-sm-5">
-                      <img src="assets/images/icons/add-to-cart.svg" alt="" />
-                      Add To Cart
-                    </button>
+                    {product?.stock === 0 ? (
+                      <>
+                        <button
+                          disabled={true}
+                          className="btn not-allow btn-main d-flex w-100 justify-content-center align-items-center gap-2 pill px-sm-5 "
+                        >
+                          <img
+                            src="assets/images/icons/add-to-cart.svg"
+                            alt=""
+                          />
+                          Product out of stock
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button className="btn btn-main d-flex w-100 justify-content-center align-items-center gap-2 pill px-sm-5">
+                          <img
+                            src="assets/images/icons/add-to-cart.svg"
+                            alt=""
+                          />
+                          Add To Cart
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>

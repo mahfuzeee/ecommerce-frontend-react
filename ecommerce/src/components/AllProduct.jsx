@@ -141,7 +141,7 @@ const AllProduct = () => {
             <div className="col-lg-7">
               <div className="breadcrumb-one-content">
                 <h3 className="breadcrumb-one-content__title text-center mb-3 text-capitalize">
-                  10 products available for purchase
+                  {pagination.totalProducts} products available for purchase
                 </h3>
                 <p className="breadcrumb-one-content__desc text-center text-black-three">
                   Explore the best Product available for sale. Our unique
@@ -333,11 +333,13 @@ const AllProduct = () => {
                                   <h6 className="product-item__price mb-0">
                                     ৳
                                     {product?.isDiscounted
-                                      ? product?.price
+                                      ? product?.discountPrice
                                       : product?.price}
                                   </h6>
                                   <span className="product-item__prevPrice text-decoration-line-through">
-                                    ৳{product?.price}
+                                    {product?.isDiscounted
+                                      ? `৳${product?.price}`
+                                      : ""}
                                   </span>
                                 </div>
                                 <Link
