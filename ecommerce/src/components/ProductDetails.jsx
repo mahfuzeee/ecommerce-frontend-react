@@ -13,6 +13,7 @@ import { useSearchParams, useNavigate } from "react-router-dom"; // Import useSe
 import { useSingleProduct } from "../hooks/useProduct";
 
 const ProductDetails = () => {
+  const [thumbsSwiper, setThumbsSwiper] = useState(null);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const id = searchParams.get("product_id");
@@ -53,7 +54,26 @@ const ProductDetails = () => {
                 <div className="product-details">
                   <div>
                     {/* Main Product Image */}
-                    <div className="main-product-image mb-3">
+                    <Swiper
+                      style={{
+                        "--swiper-navigation-color": "#fff",
+                        "--swiper-pagination-color": "#fff",
+                      }}
+                      spaceBetween={10}
+                      navigation={true}
+                      thumbs={{ swiper: thumbsSwiper }}
+                      modules={[FreeMode, Navigation, Thumbs]}
+                      className="mySwiper2"
+                    >
+                      {product?.images?.map((img, index) => (
+                        <SwiperSlide>
+                          <div key={index} className="main-product-image mb-3">
+                            <img src={img} />
+                          </div>
+                        </SwiperSlide>
+                      ))}
+                    </Swiper>
+                    {/* <div className="main-product-image mb-3">
                       <img
                         src={product.images[0]}
                         alt="Product"
@@ -63,11 +83,31 @@ const ProductDetails = () => {
                           borderRadius: "8px",
                         }}
                       />
-                    </div>
+                    </div> */}
 
                     {/* Thumbnail Images */}
                     <div className="product-thumbnails d-flex gap-2">
-                      <div style={{ width: "23%" }}>
+                      <Swiper
+                        onSwiper={setThumbsSwiper}
+                        spaceBetween={10}
+                        slidesPerView={4}
+                        freeMode={true}
+                        watchSlidesProgress={true}
+                        modules={[FreeMode, Navigation, Thumbs]}
+                        className="mySwiper"
+                      >
+                        {product?.images?.map((img, index) => (
+                          <SwiperSlide>
+                            <div
+                              key={index}
+                              className="main-product-image mb-3"
+                            >
+                              <img src={img} />
+                            </div>
+                          </SwiperSlide>
+                        ))}
+                      </Swiper>
+                      {/* <div style={{ width: "23%" }}>
                         <img
                           src={product.images[1]}
                           alt={`Thumbnail`}
@@ -89,7 +129,7 @@ const ProductDetails = () => {
                             cursor: "pointer",
                           }}
                         />
-                      </div>
+                      </div> */}
                     </div>
                   </div>
 
