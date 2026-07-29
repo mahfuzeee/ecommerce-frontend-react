@@ -23,7 +23,7 @@ export const getAllProduct = async ({
   }
 };
 
-export const getProduct = async ({ id }) => {
+export const getProduct = async (id) => {
   const res = await productApi.get(`/${id}`);
   if (res?.data?.success === true) {
     return res?.data?.data;

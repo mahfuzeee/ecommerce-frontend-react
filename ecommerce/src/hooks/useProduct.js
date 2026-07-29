@@ -13,7 +13,7 @@ const useProduct = (filter) => {
 export const useSingleProduct = (id) => {
   return useQuery({
     queryKey: ["product", id],
-    queryFn: () => getProduct({ id }),
+    queryFn: () => getProduct(id),
   });
 };
 
