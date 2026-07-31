@@ -9,8 +9,16 @@ import "swiper/css/thumbs";
 import { FreeMode, Navigation, Thumbs } from "swiper/modules";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import {
+  formatDate,
+  ErrorToast,
+  SuccessToast,
+  IsEmpty,
+} from "../helper/helper";
 import { useSearchParams, useNavigate } from "react-router-dom"; // Import useSearchParams
 import { useSingleProduct } from "../hooks/useProduct";
+import cartStore from "../store/cart.store";
+import { useAllReview, useSingleReview } from "../hooks/useReview";
 
 const ProductDetails = () => {
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
@@ -18,7 +26,16 @@ const ProductDetails = () => {
   const [searchParams] = useSearchParams();
   const id = searchParams.get("product_id");
 
-  //Product details dataset
+  //Product Section
+  const { data, isLoading } = useSingleProduct(id);
+  const product = data || {};
+
+  const discount_percent = Math.round(
+    ((product?.price - product?.discountPrice) / product?.price) * 100,
+  );
+
+  //Cart Section
+  //Product details dataset for cart
   const [productDetails, setProductDetails] = useState({
     size: "",
     color: "",
@@ -27,12 +44,42 @@ const ProductDetails = () => {
     activeColor: null,
   });
 
-  const { data, isLoading } = useSingleProduct(id);
-  const product = data || {};
+  //Cart validation rules....
+  const validation = [
+    { field: id, message: "product id is required!" },
+    { field: product.name, message: "Title is required!" },
+    { field: productDetails.color, message: "Color is required!" },
+    { field: productDetails.quantity, message: "Qty is required!" },
+    { field: productDetails.size, message: "Size is required!" },
+  ];
 
-  const discount_percent = Math.round(
-    ((product?.price - product?.discountPrice) / product?.price) * 100,
-  );
+  //Cart store functions
+  const { cartLoading, addCart, getCart } = cartStore();
+
+  const handleAddToCart = async () => {
+    for (const { field, message } of validation) {
+      if (IsEmpty(field)) {
+        return ErrorToast(message);
+      }
+    }
+    const { size, color, quantity } = productDetails;
+    const data = {
+      size,
+      color,
+      quantity,
+      product_name: product.name,
+      product_id: id,
+    };
+    const res = await addCart(data);
+    if (res === 401) {
+      navigate("/login");
+    }
+    await getCart();
+  };
+
+  //Review Section
+  const { data: reviewData, isLoading: reviewLoading } = useAllReview(id);
+  const reviews = reviewData || {};
 
   const StarRating = ({ star }) => {
     star = parseInt(star);
@@ -314,12 +361,16 @@ const ProductDetails = () => {
                       </>
                     ) : (
                       <>
-                        <button className="btn btn-main d-flex w-100 justify-content-center align-items-center gap-2 pill px-sm-5">
+                        <button
+                          onClick={handleAddToCart}
+                          disabled={cartLoading}
+                          className="btn btn-main d-flex w-100 justify-content-center align-items-center gap-2 pill px-sm-5"
+                        >
                           <img
                             src="assets/images/icons/add-to-cart.svg"
                             alt=""
                           />
-                          Add To Cart
+                          {cartLoading ? "Adding..." : "Add To Cart"}
                         </button>
                       </>
                     )}
@@ -331,28 +382,36 @@ const ProductDetails = () => {
               <ul className="meta-attribute">
                 <li className="meta-attribute__item">
                   <span className="name">Last Update</span>
-                  <span className="details">Dec 1, 2024</span>
+                  <span className="details">
+                    {formatDate(product?.updatedAt)}
+                  </span>
                 </li>
                 <li className="meta-attribute__item">
                   <span className="name">Published</span>
-                  <span className="details">Jan 15, 2024</span>
+                  <span className="details">
+                    {formatDate(product?.createdAt)}
+                  </span>
                 </li>
                 <li className="meta-attribute__item">
                   <span className="name">Category</span>
-                  <span className="details">Clothing</span>
+                  <span className="details">{product?.category?.name}</span>
                 </li>
                 <li className="meta-attribute__item">
                   <span className="name">Brand</span>
-                  <span className="details">Fashion Brand</span>
+                  <span className="details">{product?.brand?.name}</span>
                 </li>
                 <li className="meta-attribute__item">
                   <span className="name">Is Discount</span>
-                  <span className="details">True</span>
+                  <span className="details">
+                    {String(product?.isDiscounted)}
+                  </span>
                 </li>
-                <li className="meta-attribute__item">
-                  <span className="name">Discount Percent</span>
-                  <span className="details">20%</span>
-                </li>
+                {product?.isDiscounted && (
+                  <li className="meta-attribute__item">
+                    <span className="name">Discount Percent</span>
+                    <span className="details">{discount_percent}%</span>
+                  </li>
+                )}
               </ul>
               {/* Meta Attribute List End */}
             </div>
