@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
+import { FaHouse } from "react-icons/fa6";
 import ThemeToggle from "./ThemeToggle";
+import cartStore from "../store/cart.store";
+import userStore from "../store/user.store";
 
 const HeaderOne = () => {
   const [active, setActive] = useState(false);
@@ -46,6 +49,15 @@ const HeaderOne = () => {
   const mobileMenu = () => {
     setActive(!active);
   };
+
+  //Cart api integration
+  const { cart, getCart, updateCart } = cartStore();
+  const { user, userRequest } = userStore();
+
+  useEffect(() => {
+    getCart();
+    userRequest();
+  }, []);
 
   return (
     <>
@@ -106,19 +118,30 @@ const HeaderOne = () => {
                   alt=""
                   className="dark-version"
                 />
-                <span className="qty-badge font-12">{0}</span>
+                <span className="qty-badge font-12">{cart.length || 0}</span>
               </Link>
               {/* Light Dark Mode */}
               <ThemeToggle />
               {/* Light Dark Mode */}
-              <div className="header-right__inner gap-3 flx-align d-lg-flex d-none">
-                <Link to="/register" className="btn btn-main pill">
+
+              {user ? (
+                <Link to="/dashboard-profile" className="btn btn-main pill">
                   <span className="icon-left icon">
-                    <img src="assets/images/icons/user.svg" alt="" />
+                    <FaHouse className="mb-1" />
                   </span>
-                  Create Account
+                  Dashboard
                 </Link>
-              </div>
+              ) : (
+                <div className="header-right__inner gap-3 flx-align d-lg-flex d-none">
+                  <Link to="/register" className="btn btn-main pill">
+                    <span className="icon-left icon">
+                      <img src="assets/images/icons/user.svg" alt="" />
+                    </span>
+                    Create Account
+                  </Link>
+                </div>
+              )}
+
               <button
                 type="button"
                 className="toggle-mobileMenu d-lg-none"

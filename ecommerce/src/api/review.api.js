@@ -9,8 +9,8 @@ export const getAllReview = async () => {
   }
 };
 
-export const getReview = async ({ id }) => {
-  const res = await reviewApi.get(`/${id}`);
+export const getReview = async (id) => {
+  const res = await reviewApi.get(`/product/${id}`);
   if (res?.data?.success === true) {
     return res?.data?.data;
   } else {

@@ -1,6 +1,15 @@
 import { Link } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
+import { useSingleProduct } from "../hooks/useProduct";
 
 const BreadcrumbProductDetails = () => {
+  const [searchParams] = useSearchParams();
+  const id = searchParams.get("product_id");
+
+  //Product Section
+  const { data, isLoading } = useSingleProduct(id);
+  const product = data || {};
+
   return (
     <section className="breadcrumb border-bottom p-0 d-block section-bg position-relative z-index-1">
       <div className="breadcrumb-two">
@@ -36,14 +45,15 @@ const BreadcrumbProductDetails = () => {
 
                 <div className="mt-2">
                   <h3 className="breadcrumb-two-content__title mb-3 text-capitalize">
-                    Baby Toy
+                    {product?.name || "Product Name"}
                   </h3>
                 </div>
 
                 <div className="breadcrumb-content flx-align gap-3">
                   <div className="breadcrumb-content__item text-heading fw-500 flx-align gap-2">
                     <span className="text">
-                      By <span className="link text-main fw-600">Admin</span>{" "}
+                      By{" "}
+                      <span className="link text-main fw-600">Admin</span>{" "}
                     </span>
                   </div>
 

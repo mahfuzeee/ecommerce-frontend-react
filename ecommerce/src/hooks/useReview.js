@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getAllReview } from "../api/review.api";
+import { getAllReview, getReview } from "../api/review.api";
 
 export const useAllReview = () => {
   return useQuery({
@@ -11,6 +11,6 @@ export const useAllReview = () => {
 export const useSingleReview = (id) => {
   return useQuery({
     queryKey: ["review", id],
-    queryFn: () => getReview({ id }),
+    queryFn: () => getReview(id),
   });
 };
