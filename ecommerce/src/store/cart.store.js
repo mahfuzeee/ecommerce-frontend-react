@@ -49,7 +49,7 @@ const cartStore = create((set) => ({
   updateCart: async (id, data) => {
     set({ cartLoading: true });
     try {
-      const res = await cartApi.put(`/${id}`, data);
+      const res = await cartApi.put(`/update/${id}`, data);
       if (res?.data?.success === true) {
         set({ cartLoading: false });
         SuccessToast(res?.data?.message);
