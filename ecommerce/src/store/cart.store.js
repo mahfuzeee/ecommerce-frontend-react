@@ -73,7 +73,7 @@ const cartStore = create((set) => ({
   deleteCart: async (id) => {
     set({ cartLoading: true });
     try {
-      const res = await cartApi.delete(`/${id}`);
+      const res = await cartApi.delete(`/delete/${id}`);
       if (res?.data?.success === true) {
         set({ cartLoading: false });
       }
