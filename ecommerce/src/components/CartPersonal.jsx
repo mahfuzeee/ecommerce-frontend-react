@@ -1,214 +1,290 @@
 import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import cartStore from "../store/cart.store";
+import userStore from "../store/user.store";
+import { useCreateInvoice } from "../hooks/useInvoice";
 
 const CartPersonal = () => {
+  const { cart, getCart } = cartStore();
+  const { user, userRequest } = userStore();
+
+  useEffect(() => {
+    (async () => {
+      await getCart();
+    })();
+  }, [getCart]);
+
+  //console.log(JSON.stringify(user));
+
+  const { mutate: createInvoice } = useCreateInvoice();
 
   return (
-    <section className='cart-personal padding-y-120'>
-      <div className='container container-two'>
-        <div className='row gy-5'>
-          <div className='col-lg-8 pe-sm-5'>
-            <div className='cart-personal__content'>
-              <h5 className='cart-personal__title '>Personal information</h5>
+    <section className="cart-personal padding-y-120">
+      <div className="container container-two">
+        <div className="row gy-5">
+          <div className="col-lg-8 pe-sm-5">
+            <div className="cart-personal__content">
+              <h5 className="cart-personal__title ">Personal information</h5>
               <p>We will send the purchase receipt to this address.</p>
               <div>
-                <div className='profile-info'>
-                  <div className='profile-info__inner mb-40 text-center'>
-                    <span className='profile-info__designation font-14'>
+                <div className="profile-info">
+                  <div className="profile-info__inner mb-40 text-center">
+                    <span className="profile-info__designation font-14">
                       Exclusive Author
                     </span>
                   </div>
-                  <ul className='profile-info-list'>
-                    <li className='profile-info-list__item'>
-                      <span className='profile-info-list__content flx-align flex-nowrap gap-2'>
-                        <span className='text text-heading fw-500'>Email</span>
+                  <ul className="profile-info-list">
+                    <li className="profile-info-list__item">
+                      <span className="profile-info-list__content flx-align flex-nowrap gap-2">
+                        <span className="text text-heading fw-500">Email</span>
                       </span>
-                      <span className='profile-info-list__info'>
-                        user@user.com
+                      <span className="profile-info-list__info">
+                        {user?.email.length > 0 ? (
+                          user?.email
+                        ) : (
+                          <span className="text-danger">
+                            *** Please fill email field!
+                          </span>
+                        )}
                       </span>
                     </li>
 
-                    <li className='profile-info-list__item'>
-                      <span className='profile-info-list__content flx-align flex-nowrap gap-2'>
-                        <span className='text text-heading fw-500'>
+                    <li className="profile-info-list__item">
+                      <span className="profile-info-list__content flx-align flex-nowrap gap-2">
+                        <span className="text text-heading fw-500">
                           Full Name
                         </span>
                       </span>
-                      <span className='profile-info-list__info'>
-                        Alex
+                      <span className="profile-info-list__info">
+                        {user?.name.length > 0 ? (
+                          user?.name
+                        ) : (
+                          <span className="text-danger">
+                            *** Please fill name field!
+                          </span>
+                        )}
                       </span>
                     </li>
-                    <li className='profile-info-list__item'>
-                      <span className='profile-info-list__content flx-align flex-nowrap gap-2'>
-                        <span className='text text-heading fw-500'>
+                    <li className="profile-info-list__item">
+                      <span className="profile-info-list__content flx-align flex-nowrap gap-2">
+                        <span className="text text-heading fw-500">
                           Address
                         </span>
                       </span>
-                      <span className='profile-info-list__info'>
-                        *** Please fill address field!
+                      <span className="profile-info-list__info">
+                        {user?.address ? (
+                          user?.address
+                        ) : (
+                          <span className="text-danger">
+                            *** Please fill address field!
+                          </span>
+                        )}
                       </span>
                     </li>
-                    <li className='profile-info-list__item'>
-                      <span className='profile-info-list__content flx-align flex-nowrap gap-2'>
-                        <span className='text text-heading fw-500'>City</span>
+                    <li className="profile-info-list__item">
+                      <span className="profile-info-list__content flx-align flex-nowrap gap-2">
+                        <span className="text text-heading fw-500">City</span>
                       </span>
-                      <span className='profile-info-list__info'>
-                        <span className='text-danger'>
-                          *** Please fill city field!
+                      <span className="profile-info-list__info">
+                        <span className="text-danger">
+                          {user?.city ? (
+                            user?.city
+                          ) : (
+                            <span className="text-danger">
+                              *** Please fill city field!
+                            </span>
+                          )}
                         </span>
                       </span>
                     </li>
-                    <li className='profile-info-list__item'>
-                      <span className='profile-info-list__content flx-align flex-nowrap gap-2'>
-                        <span className='text text-heading fw-500'>
+                    <li className="profile-info-list__item">
+                      <span className="profile-info-list__content flx-align flex-nowrap gap-2">
+                        <span className="text text-heading fw-500">
                           Country
                         </span>
                       </span>
-                      <span className='profile-info-list__info'>
-                        <span className='text-danger'>
-                          *** Please fill Country field!
+                      <span className="profile-info-list__info">
+                        <span className="text-danger">
+                          {user?.country ? (
+                            user?.country
+                          ) : (
+                            <span className="text-danger">
+                              *** Please fill country field!
+                            </span>
+                          )}
                         </span>
                       </span>
                     </li>
-                    <li className='profile-info-list__item'>
-                      <span className='profile-info-list__content flx-align flex-nowrap gap-2'>
-                        <span className='text text-heading fw-500'>Fax</span>
+                    <li className="profile-info-list__item">
+                      <span className="profile-info-list__content flx-align flex-nowrap gap-2">
+                        <span className="text text-heading fw-500">Fax</span>
                       </span>
-                      <span className='profile-info-list__info'>
-                        <span className='text-danger'>
-                          *** Please fill fax field!
+                      <span className="profile-info-list__info">
+                        <span className="text-danger">
+                          {user?.fax ? (
+                            user?.fax
+                          ) : (
+                            <span className="text-danger">
+                              *** Please fill fax field!
+                            </span>
+                          )}
                         </span>
                       </span>
                     </li>
-                    <li className='profile-info-list__item'>
-                      <span className='profile-info-list__content flx-align flex-nowrap gap-2'>
-                        <span className='text text-heading fw-500'>Phone</span>
+                    <li className="profile-info-list__item">
+                      <span className="profile-info-list__content flx-align flex-nowrap gap-2">
+                        <span className="text text-heading fw-500">Phone</span>
                       </span>
-                      <span className='profile-info-list__info'>
-                        <span className='text-danger'>
-                          *** Please fill phone field!
+                      <span className="profile-info-list__info">
+                        <span className="text-danger">
+                          {user?.phone ? (
+                            user?.phone
+                          ) : (
+                            <span className="text-danger">
+                              *** Please fill phone field!
+                            </span>
+                          )}
                         </span>
                       </span>
                     </li>
-                    <li className='profile-info-list__item'>
-                      <span className='profile-info-list__content flx-align flex-nowrap gap-2'>
-                        <span className='text text-heading fw-500'>
+                    <li className="profile-info-list__item">
+                      <span className="profile-info-list__content flx-align flex-nowrap gap-2">
+                        <span className="text text-heading fw-500">
                           Postcode
                         </span>
                       </span>
-                      <span className='profile-info-list__info'>
-                        <span className='text-danger'>
-                          *** Please fill postcode field!
+                      <span className="profile-info-list__info">
+                        <span className="text-danger">
+                          {user?.postcode ? (
+                            user?.postcode
+                          ) : (
+                            <span className="text-danger">
+                              *** Please fill postcode field!
+                            </span>
+                          )}
                         </span>
                       </span>
                     </li>
-                    <li className='profile-info-list__item'>
-                      <span className='profile-info-list__content flx-align flex-nowrap gap-2'>
-                        <span className='text text-heading fw-500'>State</span>
+                    <li className="profile-info-list__item">
+                      <span className="profile-info-list__content flx-align flex-nowrap gap-2">
+                        <span className="text text-heading fw-500">State</span>
                       </span>
-                      <span className='profile-info-list__info'>
-                        <span className='text-danger'>
-                          *** Please fill state field!
+                      <span className="profile-info-list__info">
+                        <span className="text-danger">
+                          {user?.state ? (
+                            user?.state
+                          ) : (
+                            <span className="text-danger">
+                              *** Please fill state field!
+                            </span>
+                          )}
                         </span>
                       </span>
                     </li>
-                    <li className='profile-info-list__item'>
-                      <span className='profile-info-list__content flx-align flex-nowrap gap-2'>
-                        <span className='text text-heading fw-500'>
+                    <li className="profile-info-list__item">
+                      <span className="profile-info-list__content flx-align flex-nowrap gap-2">
+                        <span className="text text-heading fw-500">
                           Shipping name
                         </span>
                       </span>
-                      <span className='profile-info-list__info'>
-                        <span className='text-danger'>
-                          *** Please fill shipping name field!
+                      <span className="profile-info-list__info">
+                        <span className="text-danger">
+                          {user?.shippingName ? (
+                            user?.shippingName
+                          ) : (
+                            <span className="text-danger">
+                              *** Please fill shipping name field!
+                            </span>
+                          )}
                         </span>
                       </span>
                     </li>
-                    <li className='profile-info-list__item'>
-                      <span className='profile-info-list__content flx-align flex-nowrap gap-2'>
-                        <span className='text text-heading fw-500'>
+                    <li className="profile-info-list__item">
+                      <span className="profile-info-list__content flx-align flex-nowrap gap-2">
+                        <span className="text text-heading fw-500">
                           Shipping Address
                         </span>
                       </span>
-                      <span className='profile-info-list__info'>
-                        <span className='text-danger'>
+                      <span className="profile-info-list__info">
+                        <span className="text-danger">
                           *** Please fill shipping address field!
                         </span>
                       </span>
                     </li>
-                    <li className='profile-info-list__item'>
-                      <span className='profile-info-list__content flx-align flex-nowrap gap-2'>
-                        <span className='text text-heading fw-500'>
+                    <li className="profile-info-list__item">
+                      <span className="profile-info-list__content flx-align flex-nowrap gap-2">
+                        <span className="text text-heading fw-500">
                           Shipping city
                         </span>
                       </span>
-                      <span className='profile-info-list__info'>
-                        <span className='text-danger'>
+                      <span className="profile-info-list__info">
+                        <span className="text-danger">
                           *** Please fill shipping city field!
                         </span>
                       </span>
                     </li>
-                    <li className='profile-info-list__item'>
-                      <span className='profile-info-list__content flx-align flex-nowrap gap-2'>
-                        <span className='text text-heading fw-500'>
+                    <li className="profile-info-list__item">
+                      <span className="profile-info-list__content flx-align flex-nowrap gap-2">
+                        <span className="text text-heading fw-500">
                           Shipping country
                         </span>
                       </span>
-                      <span className='profile-info-list__info'>
-                        <span className='text-danger'>
+                      <span className="profile-info-list__info">
+                        <span className="text-danger">
                           *** Please fill shipping country field!
                         </span>
                       </span>
                     </li>
 
-                    <li className='profile-info-list__item'>
-                      <span className='profile-info-list__content flx-align flex-nowrap gap-2'>
-                        <span className='text text-heading fw-500'>
+                    <li className="profile-info-list__item">
+                      <span className="profile-info-list__content flx-align flex-nowrap gap-2">
+                        <span className="text text-heading fw-500">
                           Shipping phone
                         </span>
                       </span>
-                      <span className='profile-info-list__info'>
-                        <span className='text-danger'>
+                      <span className="profile-info-list__info">
+                        <span className="text-danger">
                           *** Please fill shipping phone field!
                         </span>
                       </span>
                     </li>
-                    <li className='profile-info-list__item'>
-                      <span className='profile-info-list__content flx-align flex-nowrap gap-2'>
-                        <span className='text text-heading fw-500'>
+                    <li className="profile-info-list__item">
+                      <span className="profile-info-list__content flx-align flex-nowrap gap-2">
+                        <span className="text text-heading fw-500">
                           Shipping postcode
                         </span>
                       </span>
-                      <span className='profile-info-list__info'>
-                        <span className='text-danger'>
+                      <span className="profile-info-list__info">
+                        <span className="text-danger">
                           *** Please fill shipping postcode field!
                         </span>
                       </span>
                     </li>
-                    <li className='profile-info-list__item'>
-                      <span className='profile-info-list__content flx-align flex-nowrap gap-2'>
-                        <span className='text text-heading fw-500'>
+                    <li className="profile-info-list__item">
+                      <span className="profile-info-list__content flx-align flex-nowrap gap-2">
+                        <span className="text text-heading fw-500">
                           Shipping state
                         </span>
                       </span>
-                      <span className='profile-info-list__info'>
-                        <span className='text-danger'>
+                      <span className="profile-info-list__info">
+                        <span className="text-danger">
                           *** Please fill shipping state field!
                         </span>
                       </span>
                     </li>
 
-                    <li className='profile-info-list__item'>
-                      <span className='profile-info-list__content flx-align flex-nowrap gap-2'>
+                    <li className="profile-info-list__item">
+                      <span className="profile-info-list__content flx-align flex-nowrap gap-2">
                         <img
-                          src='https://placehold.co/50x50'
-                          alt=''
-                          className='icon'
+                          src="https://placehold.co/50x50"
+                          alt=""
+                          className="icon"
                         />
-                        <span className='text text-heading fw-500'>
+                        <span className="text text-heading fw-500">
                           Member Since
                         </span>
                       </span>
-                      <span className='profile-info-list__info'>
+                      <span className="profile-info-list__info">
                         Dec 1, 2025
                       </span>
                     </li>
@@ -217,49 +293,45 @@ const CartPersonal = () => {
               </div>
             </div>
 
-            <div className='cart-content__bottom flx-between gap-2'>
+            <div className="cart-content__bottom flx-between gap-2">
               <Link
-                to='/cart'
-                className='btn btn-outline-light flx-align gap-2 pill btn-lg'
+                to="/cart"
+                className="btn btn-outline-light flx-align gap-2 pill btn-lg"
               >
-                <span className='icon line-height-1 font-20'>
-                  <i className='las la-arrow-left' />
+                <span className="icon line-height-1 font-20">
+                  <i className="las la-arrow-left" />
                 </span>
                 Back
               </Link>
-              <button
-                className='btn btn-main flx-align gap-2 pill btn-lg'
-              >
+              <button className="btn btn-main flx-align gap-2 pill btn-lg">
                 Proceed To Payment
               </button>
             </div>
           </div>
-          <div className='col-lg-4'>
+          <div className="col-lg-4">
             <br />
-            <div className='order-summary mt-40'>
-              <h5 className='order-summary__title mb-32'>Order Summary</h5>
-              <ul className='billing-list'>
-                <li className='billing-list__item flx-between'>
-                  <span className='text text-heading fw-500'>
+            <div className="order-summary mt-40">
+              <h5 className="order-summary__title mb-32">Order Summary</h5>
+              <ul className="billing-list">
+                <li className="billing-list__item flx-between">
+                  <span className="text text-heading fw-500">
                     You have 5 items
                   </span>
-                  <span className='amount text-heading fw-500'>
-                    ৳2222
-                  </span>
+                  <span className="amount text-heading fw-500">৳2222</span>
                 </li>
-                <li className='billing-list__item flx-between'>
-                  <span className='text text-heading fw-500'>Vat(15%)</span>
-                  <span className='amount text-body'>৳{2222 * 5}</span>
+                <li className="billing-list__item flx-between">
+                  <span className="text text-heading fw-500">Vat(15%)</span>
+                  <span className="amount text-body">৳{2222 * 5}</span>
                 </li>
-                <li className='billing-list__item flx-between'>
-                  <span className='text text-heading fw-500'>Shipping Fee</span>
-                  <span className='amount text-body'>৳{2222}</span>
+                <li className="billing-list__item flx-between">
+                  <span className="text text-heading fw-500">Shipping Fee</span>
+                  <span className="amount text-body">৳{2222}</span>
                 </li>
-                <li className='billing-list__item flx-between'>
-                  <span className='text text-heading font-20 fw-500 font-heading'>
+                <li className="billing-list__item flx-between">
+                  <span className="text text-heading font-20 fw-500 font-heading">
                     Total
                   </span>
-                  <span className='amount text-heading font-20 fw-500 font-heading'>
+                  <span className="amount text-heading font-20 fw-500 font-heading">
                     ৳{2222 + 2222 * 2 + 2222}
                   </span>
                 </li>

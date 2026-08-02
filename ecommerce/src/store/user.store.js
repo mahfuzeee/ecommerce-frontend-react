@@ -57,7 +57,7 @@ const userStore = create((set) => ({
       set({ userLoading: true });
       const res = await userApi.get("/");
       if (res?.data?.success === true) {
-        set({ user: res?.data?.data });
+        set({ user: res?.data?.data[0] });
         set({ userLoading: false });
         return true;
       } else {
