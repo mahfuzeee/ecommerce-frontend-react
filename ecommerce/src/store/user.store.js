@@ -59,6 +59,7 @@ const userStore = create((set) => ({
       if (res?.data?.success === true) {
         set({ user: res?.data?.data[0] });
         set({ userLoading: false });
+
         return true;
       } else {
         set({ userLoading: false });
