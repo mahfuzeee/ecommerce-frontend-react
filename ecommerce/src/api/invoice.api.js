@@ -32,7 +32,7 @@ export const createInvoice = async (data) => {
 };
 
 //Get single invoice by single user
-export const getSingleInvoice = async ({ id }) => {
+export const getSingleInvoice = async (id) => {
   try {
     const res = await invoiceApi.get(`/single/${id}`);
     if (res?.data?.success === true) {
