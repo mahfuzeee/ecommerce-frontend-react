@@ -1,5 +1,5 @@
 import userStore from "../store/user.store";
-import { formatDate } from "../helper/helper";
+import { formatDate, ErrorToast, IsEmpty } from "../helper/helper";
 import { useState, useEffect } from "react";
 
 const ProfileInner = () => {
@@ -31,6 +31,7 @@ const ProfileInner = () => {
       state: "",
       zipCode: "",
       country: "",
+      phone: "",
     },
   });
 
@@ -56,44 +57,40 @@ const ProfileInner = () => {
           state: user?.shippingAddress?.state || "",
           zipCode: user?.shippingAddress?.zipCode || "",
           country: user?.shippingAddress?.country || "",
+          phone: user?.shippingAddress?.phone || "",
         },
       });
     }
   }, [user]);
 
   const validation = [
-    { field: userData.name, message: "Name is required!" },
-    { field: userData.email, message: "Email is required!" },
-    { field: userData.password, message: "Password is required!" },
-    { field: userData.addresses.address, message: "Address is required!" },
-    { field: userData.addresses.street, message: "Street is required!" },
-    { field: userData.addresses.city, message: "City is required!" },
-    { field: userData.addresses.state, message: "State is required!" },
-    { field: userData.addresses.zipCode, message: "Zip Code is required!" },
-    { field: userData.addresses.country, message: "Country is required!" },
-    { field: userData.phone, message: "Phone is required!" },
+    { field: userData?.name, message: "Name is required!" },
+    { field: userData?.email, message: "Email is required!" },
+    { field: userData?.password, message: "Password is required!" },
+    { field: userData?.addresses?.address, message: "Address is required!" },
+    { field: userData?.addresses?.city, message: "City is required!" },
+    { field: userData?.addresses?.state, message: "State is required!" },
+    { field: userData?.addresses?.zipCode, message: "Zip Code is required!" },
+    { field: userData?.addresses?.country, message: "Country is required!" },
+    { field: userData?.phone, message: "Phone is required!" },
     {
-      field: userData.shippingAddress.address,
+      field: userData?.shippingAddress?.address,
       message: "Shipping Address is required!",
     },
     {
-      field: userData.shippingAddress.street,
-      message: "Shipping Street is required!",
-    },
-    {
-      field: userData.shippingAddress.city,
+      field: userData?.shippingAddress?.city,
       message: "Shipping City is required!",
     },
     {
-      field: userData.shippingAddress.state,
+      field: userData?.shippingAddress?.state,
       message: "Shipping State is required!",
     },
     {
-      field: userData.shippingAddress.zipCode,
+      field: userData?.shippingAddress?.zipCode,
       message: "Shipping Zip Code is required!",
     },
     {
-      field: userData.shippingAddress.country,
+      field: userData?.shippingAddress?.country,
       message: "Shipping Country is required!",
     },
   ];
@@ -116,8 +113,13 @@ const ProfileInner = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    for (const { field, message } of validation) {
+      if (IsEmpty(field)) {
+        return ErrorToast(message);
+      }
+    }
     console.log(JSON.stringify(userData));
-    userUpdateRequest(userData).then((res) => {});
+    await userUpdateRequest(userData);
     await userRequest();
   };
 
@@ -216,7 +218,7 @@ const ProfileInner = () => {
                             </label>
                             <input
                               required
-                              value={userData.name}
+                              value={userData.name ?? ""}
                               name="name"
                               type="text"
                               onChange={handleChange}
@@ -234,7 +236,7 @@ const ProfileInner = () => {
                             </label>
                             <div className="position-relative">
                               <input
-                                value={userData.password}
+                                value={userData.password ?? ""}
                                 name="password"
                                 type="password"
                                 onChange={handleChange}
@@ -254,7 +256,7 @@ const ProfileInner = () => {
                             </label>
                             <input
                               required
-                              value={userData.addresses.address}
+                              value={userData.addresses.address ?? ""}
                               name="address"
                               type="text"
                               onChange={handleChange}
@@ -268,7 +270,7 @@ const ProfileInner = () => {
                             </label>
                             <input
                               required
-                              value={userData.addresses.city}
+                              value={userData.addresses.city ?? ""}
                               name="city"
                               type="text"
                               onChange={handleChange}
@@ -282,7 +284,7 @@ const ProfileInner = () => {
                             </label>
                             <input
                               required
-                              value={userData.addresses.country}
+                              value={userData.addresses.country ?? ""}
                               name="country"
                               type="text"
                               onChange={handleChange}
@@ -297,6 +299,7 @@ const ProfileInner = () => {
                             <input
                               required
                               value="123-456-7890"
+                              onChange={handleChange}
                               name="cus_fax"
                               type="text"
                               className="common-input border"
@@ -309,7 +312,7 @@ const ProfileInner = () => {
                             </label>
                             <input
                               required
-                              value={userData.phone}
+                              value={userData.phone ?? ""}
                               name="phone"
                               type="tel"
                               onChange={handleChange}
@@ -323,7 +326,7 @@ const ProfileInner = () => {
                             </label>
                             <input
                               required
-                              value={userData.addresses.zipCode}
+                              value={userData.addresses.zipCode ?? ""}
                               name="zipCode"
                               type="text"
                               onChange={handleChange}
@@ -337,7 +340,7 @@ const ProfileInner = () => {
                             </label>
                             <input
                               required
-                              value={userData.addresses.state}
+                              value={userData.addresses.state ?? ""}
                               name="state"
                               type="text"
                               onChange={handleChange}
@@ -359,7 +362,7 @@ const ProfileInner = () => {
                             </label>
                             <input
                               required
-                              value={user.name}
+                              value={user?.name ?? ""}
                               name="name"
                               type="text"
                               onChange={handleChange}
@@ -373,7 +376,7 @@ const ProfileInner = () => {
                             </label>
                             <input
                               required
-                              value={userData.shippingAddress.address}
+                              value={userData.shippingAddress.address ?? ""}
                               name="address"
                               type="text"
                               onChange={handleChange}
@@ -387,7 +390,7 @@ const ProfileInner = () => {
                             </label>
                             <input
                               required
-                              value={userData.shippingAddress.city}
+                              value={userData.shippingAddress.city ?? ""}
                               name="city"
                               type="text"
                               onChange={handleChange}
@@ -401,7 +404,7 @@ const ProfileInner = () => {
                             </label>
                             <input
                               required
-                              value={userData.shippingAddress.country}
+                              value={userData.shippingAddress.country ?? ""}
                               name="country"
                               type="text"
                               onChange={handleChange}
@@ -415,7 +418,7 @@ const ProfileInner = () => {
                             </label>
                             <input
                               required
-                              value={userData.shippingAddress.phone}
+                              value={userData.shippingAddress.phone ?? ""}
                               name="phone"
                               type="text"
                               onChange={handleChange}
@@ -429,7 +432,7 @@ const ProfileInner = () => {
                             </label>
                             <input
                               required
-                              value={userData.shippingAddress.zipCode}
+                              value={userData.shippingAddress.zipCode ?? ""}
                               name="zipCode"
                               type="text"
                               onChange={handleChange}
@@ -443,7 +446,7 @@ const ProfileInner = () => {
                             </label>
                             <input
                               required
-                              value={userData.shippingAddress.state}
+                              value={userData.shippingAddress.state ?? ""}
                               name="state"
                               type="text"
                               onChange={handleChange}
@@ -454,11 +457,14 @@ const ProfileInner = () => {
 
                           <div className="col-sm-12 text-end">
                             <button
+                              disabled={userUpdateLoading}
                               type="submit"
                               onClick={handleSubmit}
                               className="btn btn-main btn-lg pill mt-4"
                             >
-                              Update Profile
+                              {userUpdateLoading
+                                ? "Updating..."
+                                : "Update Profile"}
                             </button>
                           </div>
                         </div>

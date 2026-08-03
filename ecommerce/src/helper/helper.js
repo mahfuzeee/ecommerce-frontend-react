@@ -8,7 +8,10 @@ let EmailRegx = /\S+@\S+\.\S+/;
 
 class FormHelper {
   IsEmpty(value) {
-    return value.length === 0;
+    if (value === null || value === undefined) return true;
+    if (typeof value === "string") return value.trim().length === 0;
+    if (Array.isArray(value)) return value.length === 0;
+    return false;
   }
 
   IsEmail(value) {
