@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import {
   getAllInvoice,
   createInvoice,
@@ -19,11 +20,15 @@ export const useAllInvoice = () => {
 
 //Create invoice
 export const useCreateInvoice = () => {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data) => createInvoice(data),
-    onSuccess: () => {
+    mutationFn: () => createInvoice(),
+    onSuccess: (response) => {
       queryClient.invalidateQueries(["invoices"]);
+
+      //navigate(response.GatewayPageURL);
+      window.location.href = response?.GatewayPageURL;
     },
   });
 };

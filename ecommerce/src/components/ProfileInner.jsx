@@ -13,8 +13,6 @@ const ProfileInner = () => {
 
   const [userData, setUserData] = useState({
     name: "",
-    email: "",
-    password: "",
     addresses: {
       address: "",
       street: "",
@@ -66,7 +64,6 @@ const ProfileInner = () => {
   const validation = [
     { field: userData?.name, message: "Name is required!" },
     { field: userData?.email, message: "Email is required!" },
-    { field: userData?.password, message: "Password is required!" },
     { field: userData?.addresses?.address, message: "Address is required!" },
     { field: userData?.addresses?.city, message: "City is required!" },
     { field: userData?.addresses?.state, message: "State is required!" },

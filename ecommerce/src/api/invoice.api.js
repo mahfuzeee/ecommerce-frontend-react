@@ -18,9 +18,9 @@ export const getAllInvoice = async () => {
 };
 
 //Create invoice
-export const createInvoice = async (data) => {
+export const createInvoice = async () => {
   try {
-    const res = await invoiceApi.post("/", data);
+    const res = await invoiceApi.post("/");
     if (res?.data?.success === true) {
       return res?.data?.data;
     }

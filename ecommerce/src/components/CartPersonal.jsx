@@ -15,9 +15,24 @@ const CartPersonal = () => {
     })();
   }, [getCart]);
 
+  const subTotal = cart.reduce(
+    (total, item) =>
+      total +
+      item.quantity *
+        parseInt(item?.isDiscounted ? item?.discountedPrice : item?.price),
+    0,
+  );
+  const vat = subTotal * 0.15;
+  const shippingFee = 80;
+  const total = subTotal + vat + shippingFee;
   //console.log(JSON.stringify(user));
 
   const { mutate: createInvoice } = useCreateInvoice();
+
+  const handleCreateInvoice = async () => {
+    await createInvoice();
+    await getCart();
+  };
 
   return (
     <section className="cart-personal padding-y-120">
@@ -40,7 +55,7 @@ const CartPersonal = () => {
                         <span className="text text-heading fw-500">Email</span>
                       </span>
                       <span className="profile-info-list__info">
-                        {user?.email.length > 0 ? (
+                        {user?.email?.length > 0 ? (
                           user?.email
                         ) : (
                           <span className="text-danger">
@@ -57,7 +72,7 @@ const CartPersonal = () => {
                         </span>
                       </span>
                       <span className="profile-info-list__info">
-                        {user?.name.length > 0 ? (
+                        {user?.name?.length > 0 ? (
                           user?.name
                         ) : (
                           <span className="text-danger">
@@ -246,9 +261,13 @@ const CartPersonal = () => {
                         </span>
                       </span>
                       <span className="profile-info-list__info">
-                        <span className="text-danger">
-                          *** Please fill shipping phone field!
-                        </span>
+                        {user?.phone ? (
+                          user?.phone
+                        ) : (
+                          <span className="text-danger">
+                            *** Please fill shipping phone field!
+                          </span>
+                        )}
                       </span>
                     </li>
                     <li className="profile-info-list__item">
@@ -314,7 +333,10 @@ const CartPersonal = () => {
                 </span>
                 Back
               </Link>
-              <button className="btn btn-main flx-align gap-2 pill btn-lg">
+              <button
+                onClick={handleCreateInvoice}
+                className="btn btn-main flx-align gap-2 pill btn-lg"
+              >
                 Proceed To Payment
               </button>
             </div>
@@ -326,24 +348,26 @@ const CartPersonal = () => {
               <ul className="billing-list">
                 <li className="billing-list__item flx-between">
                   <span className="text text-heading fw-500">
-                    You have 5 items
+                    You have {cart?.length} items
                   </span>
-                  <span className="amount text-heading fw-500">৳2222</span>
+                  <span className="amount text-heading fw-500">
+                    ৳{subTotal}
+                  </span>
                 </li>
                 <li className="billing-list__item flx-between">
                   <span className="text text-heading fw-500">Vat(15%)</span>
-                  <span className="amount text-body">৳{2222 * 5}</span>
+                  <span className="amount text-body">৳{vat}</span>
                 </li>
                 <li className="billing-list__item flx-between">
                   <span className="text text-heading fw-500">Shipping Fee</span>
-                  <span className="amount text-body">৳{2222}</span>
+                  <span className="amount text-body">৳{shippingFee}</span>
                 </li>
                 <li className="billing-list__item flx-between">
                   <span className="text text-heading font-20 fw-500 font-heading">
                     Total
                   </span>
                   <span className="amount text-heading font-20 fw-500 font-heading">
-                    ৳{2222 + 2222 * 2 + 2222}
+                    ৳{total}
                   </span>
                 </li>
               </ul>
