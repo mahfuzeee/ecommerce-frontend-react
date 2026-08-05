@@ -101,7 +101,7 @@ const PopularOne = () => {
         </div>
         <div className="popular__button text-center">
           <Link
-            to="/all-products?category_id=0&brand_id=0&remark=0&keyword=0&per_page=12&page_no=1"
+            to={`all-products?category_id=${""}&brand_id=${""}&remark=${""}&keyword=${""}&limit=12&page=1`}
             className="font-18 fw-600 text-heading hover-text-main text-decoration-underline font-heading"
           >
             Explore More

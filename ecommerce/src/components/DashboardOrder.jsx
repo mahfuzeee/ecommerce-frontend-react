@@ -1,25 +1,42 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useReactToPrint } from "react-to-print";
 import { ToWords } from "to-words";
 import Paginate from "../helper/Paginate";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { useAllInvoice, useSingleInvoice } from "../hooks/useInvoice";
 import { formatDate } from "../helper/helper";
 
 const DashboardOrder = () => {
-  const naigate = useNavigate();
   const [searchParams] = useSearchParams();
   const limit = searchParams.get("limit") || 10;
   const page = searchParams.get("page") || 1;
   const { data, isLoading } = useAllInvoice();
 
-  const allInvoice = data?.invoices || [];
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState(null);
+  const invoiceData = Array.isArray(data) ? data[0] : data;
+  const allInvoice = invoiceData?.invoices || [];
+  const totalCount = invoiceData?.totalCount?.[0]?.count || 0;
+
+  const { data: selectedInvoiceData, isLoading: isInvoiceLoading } =
+    useSingleInvoice(selectedInvoiceId);
+
+  const selectedInvoice = Array.isArray(selectedInvoiceData)
+    ? selectedInvoiceData[0]
+    : selectedInvoiceData;
+
+  const billing = selectedInvoice?.cus_details?.[0] || {};
+  const shipping = selectedInvoice?.ship_details?.[0] || {};
+  const invoiceProducts = selectedInvoice?.invoiceProducts || [];
+
+  const subTotal = invoiceProducts.reduce(
+    (total, product) => total + parseInt(product.price * product.quantity),
+    0,
+  );
+  const vat = subTotal * 0.15;
+  const shippingFee = 80;
+  const grandTotal = subTotal + vat + shippingFee;
 
   const componentRef = useRef(null);
-
-  const handleViewOrder = (id) => {
-    useSingleInvoice(id);
-  };
 
   const handleAfterPrint = useCallback(() => {
     console.log("`onAfterPrint` called");
@@ -121,7 +138,7 @@ const DashboardOrder = () => {
                           </td>
                           <td>
                             <span
-                              className={`badge rounded-pill ${item?.payment_status === "success" ? "bg-success" : item.payment_status === "pending" ? "bg-warning" : "bg-danger"}`}
+                              className={`badge rounded-pill ${item?.payment_status === "paid" ? "bg-success" : item.payment_status === "pending" ? "bg-warning" : "bg-danger"}`}
                             >
                               {item?.payment_status}
                             </span>{" "}
@@ -131,7 +148,7 @@ const DashboardOrder = () => {
                           </td>
                           <td>
                             <button
-                              onClick={() => handleViewOrder(item?._id)}
+                              onClick={() => setSelectedInvoiceId(item?._id)}
                               className="btn btn-success"
                               data-bs-toggle="modal"
                               data-bs-target={`#exampleModal_1`}
@@ -150,7 +167,7 @@ const DashboardOrder = () => {
                   <Paginate
                     page_no={page}
                     per_page={limit}
-                    totalCount={data?.totalCount}
+                    totalCount={totalCount}
                   />
                 </nav>
               </div>
@@ -188,124 +205,178 @@ const DashboardOrder = () => {
                     <div className="col-12">
                       <div className="container my-5">
                         {/* Invoice Content */}
-                        <div className="p-5 bg-white">
-                          {/* Header */}
-                          <div className="row mb-4 border-bottom pb-3">
-                            <div className="col-sm-6">
-                              <h2 className="fw-bold">INVOICE</h2>
-                              <p className="mb-0">#INV no: 1</p>
-                              <p className="mb-0">
-                                #TRA no: 435effgd555555fgdfgdg453
-                              </p>
-                              <small>Date: Dec 1, 2020</small>
-                            </div>
-                            <div className="col-sm-6 text-end">
-                              <h5 className="fw-bold">PixBO</h5>
-                              <p className="mb-0">123 Street, Chittagong</p>
-                              <p className="mb-0">support@pixbo.com</p>
-                              <p className="mb-0">+880 1234 567 890</p>
+                        {isInvoiceLoading ? (
+                          <div className="text-center">
+                            <div className="spinner-border" role="status">
+                              <span className="visually-hidden">
+                                Loading...
+                              </span>
                             </div>
                           </div>
-
-                          {/* Billing Details */}
-                          <div className="row mb-4">
-                            <div className="col-sm-6">
-                              <h6 className="fw-bold">Bill To:</h6>
-                              <p className="mb-0">Alex Johnson</p>
-
-                              <p className="mb-0">alex@email.com</p>
-                              <p className="mb-0">+880 1234 567 890</p>
-                              <p className="mb-0">123 Street, Chittagong</p>
+                        ) : (
+                          <div className="p-5 bg-white">
+                            {/* Header */}
+                            <div className="row mb-4 border-bottom pb-3">
+                              <div className="col-sm-6">
+                                <h2 className="fw-bold">INVOICE</h2>
+                                <p className="mb-0">
+                                  #INV no: {selectedInvoice?._id || "N/A"}
+                                </p>
+                                <p className="mb-0">
+                                  #TRA no: {selectedInvoice?.tran_id}
+                                </p>
+                                <small>
+                                  Date:{" "}
+                                  {selectedInvoice
+                                    ? formatDate(selectedInvoice.createdAt)
+                                    : "N/A"}
+                                </small>
+                              </div>
+                              <div className="col-sm-6 text-end">
+                                <h5 className="fw-bold">PixBO</h5>
+                                <p className="mb-0">123 Street, Dhaka</p>
+                                <p className="mb-0">support@pixbo.com</p>
+                                <p className="mb-0">+880 1234 567 890</p>
+                              </div>
                             </div>
-                            <div className="col-sm-6 text-end">
-                              <h6 className="fw-bold">Payment information: </h6>
+
+                            {/* Billing Details */}
+                            <div className="row mb-4">
+                              <div className="col-sm-6">
+                                <h6 className="fw-bold">Bill To:</h6>
+                                <p className="mb-0">{billing?.name || "N/A"}</p>
+                                <p className="mb-0">
+                                  {billing?.email || "N/A"}
+                                </p>
+                                <p className="mb-0">
+                                  {billing?.phone || "N/A"}
+                                </p>
+                                <p className="mb-0">
+                                  {billing?.address || "N/A"}
+                                </p>
+                                <p className="mb-0">
+                                  {billing?.city || ""},{" "}
+                                  {billing?.country || ""}
+                                </p>
+                              </div>
+                              <div className="col-sm-6 text-end">
+                                <h6 className="fw-bold">
+                                  Payment information:{" "}
+                                </h6>
+                                <p className="mb-1">
+                                  Payment Status:{" "}
+                                  <span
+                                    className={`fw-bold text-uppercase ${selectedInvoice?.payment_status === "paid" ? "text-success" : selectedInvoice?.payment_status === "pending" ? "text-warning" : "text-danger"}`}
+                                  >
+                                    {selectedInvoice?.payment_status || "N/A"}
+                                  </span>
+                                </p>
+                                <p className="mb-1">
+                                  Deliver Status:{" "}
+                                  <span
+                                    className={`fw-bold text-uppercase ${selectedInvoice?.delivery_status === "delivered" ? "text-success" : selectedInvoice?.delivery_status === "pending" ? "text-warning" : "text-danger"}`}
+                                  >
+                                    {selectedInvoice?.delivery_status || "N/A"}
+                                  </span>
+                                </p>
+                                <p className="mb-0">
+                                  Total payable:{" "}
+                                  <span className="fw-bold text-uppercase">
+                                    {selectedInvoice?.payableAmount
+                                      ? `${selectedInvoice.payableAmount} Tk.`
+                                      : "N/A"}
+                                  </span>
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Table */}
+                            <div className="table-responsive invoice mb-4">
+                              <table className="table  align-middle">
+                                <thead className="table-light">
+                                  <tr>
+                                    <th>Product</th>
+                                    <th className="text-center">Color</th>
+                                    <th className="text-center">Size</th>
+                                    <th className="text-center">Quantity</th>
+                                    <th className="text-center">Price</th>
+                                    <th className="text-end">Total</th>
+                                  </tr>
+                                </thead>
+                                <tbody className="text-dark">
+                                  {invoiceProducts.map((product, index) => (
+                                    <tr key={index}>
+                                      <td className="text-start">
+                                        {product?.product_name}
+                                      </td>
+
+                                      <td>{product?.color}</td>
+                                      <td>{product?.size}</td>
+                                      <td>{product?.quantity}</td>
+                                      <td>{product?.price} Tk.</td>
+                                      <td className="text-end">
+                                        {(
+                                          product?.price * product?.quantity
+                                        ).toFixed(2)}{" "}
+                                        Tk.
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+
+                            {/* Summary */}
+                            <div className="row justify-content-end">
+                              <div className="col-8">
+                                <p className="text-danger small fst-italic">
+                                  {toWords.convert(
+                                    Number(selectedInvoice?.payableAmount || 0),
+                                  )}
+                                </p>
+                              </div>
+                              <div className="col-4">
+                                <ul className="list-unstyled">
+                                  <li className="d-flex justify-content-between mb-2">
+                                    <span>Subtotal:</span>{" "}
+                                    <span>
+                                      {subTotal ? `${subTotal} Tk.` : "N/A"}
+                                    </span>
+                                  </li>
+                                  <li className="d-flex justify-content-between mb-2">
+                                    <span>Vat (15%):</span>{" "}
+                                    <span>{vat ? `${vat} Tk.` : "N/A"}</span>
+                                  </li>
+                                  <li className="d-flex justify-content-between mb-2">
+                                    <span>Shipping cost:</span>{" "}
+                                    <span>
+                                      {shippingFee
+                                        ? `${shippingFee} Tk.`
+                                        : "N/A"}
+                                    </span>
+                                  </li>
+                                  <li className="d-flex justify-content-between border-top pt-2 fw-bold">
+                                    <span>Total:</span>{" "}
+                                    <span>
+                                      {grandTotal ? `${grandTotal} Tk.` : "N/A"}
+                                    </span>
+                                  </li>
+                                </ul>
+                              </div>
+                            </div>
+
+                            {/* Footer */}
+                            <div className="text-center mt-5 text-muted small">
                               <p className="mb-1">
-                                Payment Status:{" "}
-                                <span
-                                  className={`fw-bold text-uppercase text-success`}
-                                >
-                                  success
-                                </span>
+                                Thank you for your purchase!
                               </p>
-                              <p className="mb-1">
-                                Deliver Status:{" "}
-                                <span
-                                  className={`fw-bold text-uppercase text-warning`}
-                                >
-                                  pending
-                                </span>
-                              </p>
-                              <p className="mb-0">
-                                Total payable:{" "}
-                                <span className="fw-bold text-uppercase">
-                                  1000 tk.
-                                </span>
+                              <p>
+                                This invoice was generated electronically and is
+                                valid without a signature.
                               </p>
                             </div>
                           </div>
-
-                          {/* Table */}
-                          <div className="table-responsive invoice mb-4">
-                            <table className="table  align-middle">
-                              <thead className="table-light">
-                                <tr>
-                                  <th>Product</th>
-                                  <th className="text-center">Color</th>
-                                  <th className="text-center">Size</th>
-                                  <th className="text-center">Quantity</th>
-                                  <th className="text-center">Price</th>
-                                  <th className="text-end">Total</th>
-                                </tr>
-                              </thead>
-                              <tbody className="text-dark">
-                                <tr>
-                                  <td className="text-start">Baby Toy</td>
-
-                                  <td>Red</td>
-                                  <td>M</td>
-                                  <td>2</td>
-                                  <td>500 Tk.</td>
-                                  <td className="text-end">1000 Tk.</td>
-                                </tr>
-                              </tbody>
-                            </table>
-                          </div>
-
-                          {/* Summary */}
-                          <div className="row justify-content-end">
-                            <div className="col-8">
-                              <p className="text-danger small fst-italic">
-                                {toWords.convert(Number(1000))}
-                              </p>
-                            </div>
-                            <div className="col-4">
-                              <ul className="list-unstyled">
-                                <li className="d-flex justify-content-between mb-2">
-                                  <span>Subtotal:</span> <span>1000 Tk.</span>
-                                </li>
-                                <li className="d-flex justify-content-between mb-2">
-                                  <span>Vat (15%):</span> <span>150 Tk.</span>
-                                </li>
-                                <li className="d-flex justify-content-between mb-2">
-                                  <span>Shipping cost:</span>{" "}
-                                  <span>75 Tk.</span>
-                                </li>
-                                <li className="d-flex justify-content-between border-top pt-2 fw-bold">
-                                  <span>Total:</span> <span>1000 Tk.</span>
-                                </li>
-                              </ul>
-                            </div>
-                          </div>
-
-                          {/* Footer */}
-                          <div className="text-center mt-5 text-muted small">
-                            <p className="mb-1">Thank you for your purchase!</p>
-                            <p>
-                              This invoice was generated electronically and is
-                              valid without a signature.
-                            </p>
-                          </div>
-                        </div>
+                        )}
                       </div>
                     </div>
                   </div>

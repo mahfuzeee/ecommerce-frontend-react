@@ -33,11 +33,12 @@ export const useCreateInvoice = () => {
   });
 };
 
-//Get sinlge invoice by single user
+//Get single invoice by single user
 export const useSingleInvoice = (id) => {
   return useQuery({
     queryKey: ["invoice", id],
     queryFn: () => getSingleInvoice(id),
+    enabled: !!id,
   });
 };
 
