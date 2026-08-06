@@ -44,6 +44,10 @@ export const cartApi = axios.create({
 export const invoiceApi = axios.create({
   baseURL: `${baseURL}/invoices`,
 });
+//invoice product list api
+export const invoiceProductApi = axios.create({
+  baseURL: `${baseURL}/invoices/invoice-product-list`,
+});
 
 //file api
 export const apiFile = axios.create({

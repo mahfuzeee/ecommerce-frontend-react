@@ -1,5 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
-import { getAllReview, getReview } from "../api/review.api";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  getAllReview,
+  getReview,
+  createReview,
+  updateReview,
+} from "../api/review.api";
 
 export const useAllReview = () => {
   return useQuery({
@@ -12,5 +17,17 @@ export const useSingleReview = (id) => {
   return useQuery({
     queryKey: ["review", id],
     queryFn: () => getReview(id),
+  });
+};
+
+export const useCreateReview = (data) => {
+  return useMutation({
+    mutationFn: () => createReview(data),
+  });
+};
+
+export const useUpdateReview = (id) => {
+  return useMutation({
+    mutationFn: () => updateReview(id),
   });
 };

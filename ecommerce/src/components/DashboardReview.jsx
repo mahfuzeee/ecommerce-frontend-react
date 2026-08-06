@@ -1,8 +1,35 @@
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 import ReactStars from "react-stars";
 import Paginate from "../helper/Paginate";
+import { useSearchParams } from "react-router-dom";
+import { useCreateReview, useUpdateReview } from "../hooks/useReview";
+import { formatDate } from "../helper/helper";
+import { useInvoiceProduct } from "../hooks/useInvoice";
 
 const DashboardReview = () => {
+  const [searchParams] = useSearchParams();
+  const page = searchParams.get("page") || 1;
+  const limit = searchParams.get("limit") || 10;
+
+  const { data, isLoading } = useInvoiceProduct();
+  const productData = Array.isArray(data) ? data[0] : data;
+  const products = productData?.data || [];
+  const total = productData?.totalCount?.[0]?.count || 0;
+
+  const [reviewData, setReviewData] = useState({
+    product_id: "",
+    invoice_id: "",
+    description: "",
+    rating: 0,
+    comment: "",
+  });
+
+  const [productId, setProductId] = useState("");
+
+  const { mutateAsync: createReview } = useCreateReview(reviewData);
+  const { mutateAsync: updateReview } = useUpdateReview(productId);
+
   return (
     <div className="dashboard-body__content">
       point
@@ -22,71 +49,77 @@ const DashboardReview = () => {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>
-                    <div className="review-product d-flex align-items-center gap-2">
-                      <div className="review-product__thumb flex-shrink-0">
-                        <img
-                          src={`https://placehold.co/50x50`}
-                          alt="review product"
-                        />
+                {products.map((item, index) => (
+                  <tr key={index}>
+                    <td>
+                      <div className="review-product d-flex align-items-center gap-2">
+                        <div className="review-product__thumb flex-shrink-0">
+                          <img
+                            src={item?.product?.images[0]}
+                            alt={item?.product?.name}
+                          />
+                        </div>
+                        <div className="review-product__content">
+                          <h6 className="review-product__name font-15 fw-500 mb-0">
+                            <Link
+                              target="_blank"
+                              to={`/product-details?product_id=${item?.product?._id}`}
+                              className="link"
+                            >
+                              {item?.product_name}
+                            </Link>
+                          </h6>
+                          <span className="review-product__date font-12">
+                            {formatDate(item?.createdAt)}
+                          </span>
+                        </div>
                       </div>
-                      <div className="review-product__content">
-                        <h6 className="review-product__name font-15 fw-500 mb-0">
-                          <Link
-                            target="_blank"
-                            to={`/product-details?product_id=1`}
-                            className="link"
-                          >
-                            Baby Toy
-                          </Link>
-                        </h6>
-                        <span className="review-product__date font-12">
-                          Dec 1, 2020
-                        </span>
+                    </td>
+                    <td>
+                      <div className="product-user font-16">
+                        <strong className="fw-600 badge bg-dark text-capitalize">
+                          {item?.color}
+                        </strong>
                       </div>
-                    </div>
-                  </td>
-                  <td>
-                    <div className="product-user font-16">
-                      <strong className="fw-600 badge bg-dark text-capitalize">
-                        Red
-                      </strong>
-                    </div>
-                  </td>
-                  <td>
-                    <div className="product-user font-16">
-                      <strong className="fw-600 badge bg-dark text-uppercase">
-                        L
-                      </strong>
-                    </div>
-                  </td>
-                  <td>
-                    <div className="product-user font-16">
-                      <strong className="fw-600 badge bg-dark">2</strong>
-                    </div>
-                  </td>
-                  <td>
-                    <div className="product-user font-16">
-                      <strong className="fw-600 badge bg-danger ">1000</strong>
-                    </div>
-                  </td>
+                    </td>
+                    <td>
+                      <div className="product-user font-16">
+                        <strong className="fw-600 badge bg-dark text-uppercase">
+                          {item?.size}
+                        </strong>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="product-user font-16">
+                        <strong className="fw-600 badge bg-dark">
+                          {item?.quantity}
+                        </strong>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="product-user font-16">
+                        <strong className="fw-600 badge bg-danger ">
+                          {parseInt(item?.quantity * item?.price)}
+                        </strong>
+                      </div>
+                    </td>
 
-                  <td>
-                    <button
-                      data-bs-toggle="modal"
-                      data-bs-target={`#exampleModal_1`}
-                      className="btn btn-main"
-                    >
-                      Make a review
-                    </button>
-                  </td>
-                </tr>
+                    <td>
+                      <button
+                        data-bs-toggle="modal"
+                        data-bs-target={`#exampleModal_1`}
+                        className="btn btn-main"
+                      >
+                        Make a review
+                      </button>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
             <div className="flx-between justify-content-end gap-2">
               <nav aria-label="Page navigation example">
-                <Paginate page_no={1} per_page={5} totalCount={10} />
+                <Paginate page_no={page} per_page={limit} totalCount={total} />
               </nav>
             </div>
           </div>
