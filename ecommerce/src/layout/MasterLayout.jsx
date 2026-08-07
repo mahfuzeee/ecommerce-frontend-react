@@ -111,7 +111,7 @@ const MasterLayout = ({ children }) => {
 
                 <li className="sidebar-list__item">
                   <NavLink
-                    to="/dashboard-review?&page_no=1"
+                    to="/dashboard-review?&page=1"
                     className={(navData) =>
                       navData.isActive
                         ? "sidebar-list__link activePage"

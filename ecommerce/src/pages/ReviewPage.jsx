@@ -3,9 +3,7 @@ import Preloader from "../helper/Preloader";
 import MasterLayout from "../layout/MasterLayout";
 import DashboardReview from "../components/DashboardReview";
 const ReviewPage = () => {
-
   return (
-
     <>
       <MasterLayout>
         {/* Preloader */}
@@ -13,9 +11,7 @@ const ReviewPage = () => {
 
         {/* DashboardReview */}
         <DashboardReview />
-
       </MasterLayout>
-
     </>
   );
 };

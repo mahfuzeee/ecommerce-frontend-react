@@ -49,7 +49,7 @@ export const getSingleInvoice = async (id) => {
 export const getInvoiceProduct = async (filter) => {
   try {
     const res = await invoiceApi.get(
-      `/invoice-product-list/?page=${filter?.page_no}`,
+      `/invoice-product-list/?page=${filter?.page}`,
     );
     if (res?.data?.success === true) {
       return res?.data?.data;

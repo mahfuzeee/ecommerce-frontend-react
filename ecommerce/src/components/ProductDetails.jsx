@@ -224,7 +224,7 @@ const ProductDetails = () => {
                           </div>
                           <div className="product-review__body">
                             <p className="product-review__desc">
-                              {review.comment}
+                              {review?.description}
                             </p>
                           </div>
                         </div>
