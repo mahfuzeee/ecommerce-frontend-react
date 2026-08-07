@@ -9,21 +9,30 @@ import "react-loading-skeleton/dist/skeleton.css";
 import "react-quill-new/dist/quill.snow.css";
 import App from "./App.jsx";
 import { ToastContainer } from "react-toastify";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { retry: 1, staleTime: 60 * 1000 },
+  },
+});
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <ToastContainer
-      position='bottom-left'
-      autoClose={5000}
-      hideProgressBar={false}
-      newestOnTop={false}
-      closeOnClick
-      rtl={false}
-      pauseOnFocusLoss
-      draggable
-      pauseOnHover
-      theme='light'
-    ></ToastContainer>
-    <App />
-  </StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <ToastContainer
+        position="bottom-left"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      ></ToastContainer>
+      <App />
+    </QueryClientProvider>
+  </StrictMode>,
 );
