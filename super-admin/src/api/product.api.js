@@ -40,3 +40,23 @@ export const deleteProduct = async ({ id }) => {
     return [];
   }
 };
+
+//Create product api
+export const createProduct = async (data) => {
+  const res = await productApi.post("/", data);
+  if (res?.data?.success === true) {
+    return res?.data?.data;
+  } else {
+    return [];
+  }
+};
+
+//Update product api
+export const updateProduct = async ({ id, data }) => {
+  const res = await productApi.put(`/${id}`, data);
+  if (res?.data?.success === true) {
+    return res?.data?.data;
+  } else {
+    return [];
+  }
+};
