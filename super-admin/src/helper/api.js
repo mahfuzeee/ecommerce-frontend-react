@@ -60,3 +60,8 @@ export const cartApi = axios.create({
 export const invoiceApi = axios.create({
   baseURL: `${baseURL}/invoices`,
 });
+
+//Dashboard api
+export const dashboardApi = axios.create({
+  baseURL: `${baseURL}/dashboard`,
+});

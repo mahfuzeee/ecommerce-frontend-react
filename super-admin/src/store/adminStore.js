@@ -61,7 +61,7 @@ const adminStore = create((set) => ({
     } catch (error) {
       console.log(error);
       if (error?.status === 401) {
-        window.location.href = "/admin/login";
+        window.location.href = `${import.meta.env.BASE_URL}/login`;
       }
       ErrorToast("Error: Admin verification failed");
       return false;

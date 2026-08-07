@@ -1,7 +1,7 @@
-import useProduct from "../hooks/useProduct";
+import { useAllProduct } from "../hooks/useProduct";
 import { Link } from "react-router-dom";
-import useBrand from "../hooks/useBrand";
-import useCategory from "../hooks/useCategory";
+import { useGetAllBrand } from "../hooks/useBrand";
+import { useGetAllCategory } from "../hooks/useCategory";
 import { useAllReview } from "../hooks/useReview";
 const DashboardInner = () => {
   const filter = { page: 1, limit: 100 };

@@ -1,7 +1,47 @@
 import { Link } from "react-router-dom";
 import ThemeToggle from "./ThemeToggle";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { IsEmpty } from "../helper/helper";
+import adminStore from "../store/adminStore";
 
 const Login = () => {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const { adminLoginRequest } = adminStore();
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const validation = [
+    {
+      field: formData.email,
+      message: "Email is required",
+    },
+    {
+      field: formData.password,
+      message: "Password is required",
+    },
+  ];
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    for (const { field, message } of validation) {
+      if (IsEmpty(field)) {
+        return ErrorToast(message);
+      }
+    }
+    const res = await adminLoginRequest(formData);
+    if (res) {
+      navigate("/");
+    }
+  };
+
   return (
     <>
       {/* ================================== Account Page Start =========================== */}
@@ -62,8 +102,10 @@ const Login = () => {
                   </label>
                   <div className="position-relative">
                     <input
+                      onChange={handleChange}
                       required
                       type="email"
+                      name="email"
                       className="common-input common-input--bg common-input--withIcon"
                       id="email"
                       placeholder="infoname@mail.com"
@@ -85,8 +127,10 @@ const Login = () => {
                   </label>
                   <div className="position-relative">
                     <input
+                      onChange={handleChange}
                       required
                       type="password"
+                      name="password"
                       className="common-input common-input--bg common-input--withIcon"
                       id="your-password"
                       placeholder="6+ characters, 1 Capital letter"
@@ -105,6 +149,7 @@ const Login = () => {
 
                 <div className="col-12">
                   <button
+                    onClick={handleSubmit}
                     className="btn btn-main btn-lg w-100 pill"
                   >
                     Sign In

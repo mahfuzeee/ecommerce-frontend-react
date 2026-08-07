@@ -13,7 +13,7 @@ const PrivateRoute = ({ children }) => {
         await adminVerifyRequest();
         let result = getToken();
 
-        console.log(result);
+        //console.log(result);
 
         if (result) {
           setIsLogin(true);
@@ -34,7 +34,7 @@ const PrivateRoute = ({ children }) => {
     return <></>;
   }
 
-  return isLogin ? children : <Navigate to='/login' />;
+  return isLogin ? children : <Navigate to="/login" />;
 };
 
 export default PrivateRoute;

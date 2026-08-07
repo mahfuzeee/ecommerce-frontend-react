@@ -16,8 +16,8 @@ class FormHelper {
   }
 
   getToken() {
-    const token = Cookies.get("a__token");
-    console.log(token);
+    const token = Cookies.get("a_token");
+    //console.log(token);
 
     return !!token;
   }
@@ -60,7 +60,7 @@ class FormHelper {
     if (code === 401) {
       sessionStorage.clear();
       localStorage.clear();
-      window.location.href = "/login";
+      window.location.href = `${import.meta.env.BASE_URL}login`;
     }
   }
 
