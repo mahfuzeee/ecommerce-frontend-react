@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import ReactStars from "react-stars";
 import Paginate from "../helper/Paginate";
 import { useSearchParams } from "react-router-dom";
@@ -8,11 +8,11 @@ import { formatDate } from "../helper/helper";
 import { useInvoiceProduct } from "../hooks/useInvoice";
 
 const DashboardReview = () => {
-  const [searchParams] = useSearchParams();
-  const page = searchParams.get("page") || 1;
-  const limit = searchParams.get("limit") || 10;
+  const [searchParams, setSearchParams] = useSearchParams();
+  const page = Number(searchParams.get("page")) || 1;
+  const limit = Number(searchParams.get("limit")) || 10;
 
-  const { data, isLoading } = useInvoiceProduct();
+  const { data, isLoading } = useInvoiceProduct({ page, limit });
   const productData = Array.isArray(data) ? data[0] : data;
   const products = productData?.data || [];
   const total = productData?.totalCount?.[0]?.count || 0;
@@ -21,14 +21,28 @@ const DashboardReview = () => {
     product_id: "",
     invoice_id: "",
     description: "",
-    rating: 0,
+    rating: 3,
     comment: "",
   });
 
-  const [productId, setProductId] = useState("");
+  const createReviewMutation = useCreateReview();
 
-  const { mutateAsync: createReview } = useCreateReview(reviewData);
-  const { mutateAsync: updateReview } = useUpdateReview(productId);
+  const handlePageChange = ({ selected }) => {
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+
+      params.set("page", selected + 1);
+
+      return params;
+    });
+  };
+
+  //Handle add review button
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    //console.log(reviewData);
+    await createReviewMutation.mutateAsync(reviewData);
+  };
 
   return (
     <div className="dashboard-body__content">
@@ -106,6 +120,14 @@ const DashboardReview = () => {
 
                     <td>
                       <button
+                        onClick={() => {
+                          setReviewData((prev) => ({
+                            ...prev,
+                            product_id: item?.product_id,
+                            invoice_id: item?.invoice_id,
+                          }));
+                        }}
+                        type="button"
                         data-bs-toggle="modal"
                         data-bs-target={`#exampleModal_1`}
                         className="btn btn-main"
@@ -119,7 +141,14 @@ const DashboardReview = () => {
             </table>
             <div className="flx-between justify-content-end gap-2">
               <nav aria-label="Page navigation example">
-                <Paginate page_no={page} per_page={limit} totalCount={total} />
+                {products.length > 0 && (
+                  <Paginate
+                    handelPageClick={handlePageChange}
+                    page_no={page}
+                    per_page={limit}
+                    totalCount={total}
+                  />
+                )}
               </nav>
             </div>
           </div>
@@ -163,7 +192,16 @@ const DashboardReview = () => {
                                     <label className="form-label mb-2 font-18 font-heading fw-600">
                                       Add Feedback
                                     </label>
-                                    <textarea className="common-input border"></textarea>
+                                    <textarea
+                                      onChange={(e) => {
+                                        setReviewData({
+                                          ...reviewData,
+                                          description: e.target.value,
+                                        });
+                                      }}
+                                      name="description"
+                                      className="common-input border"
+                                    ></textarea>
                                   </div>
                                   <div className="col-12">
                                     <label className="form-label mb-2 font-18 font-heading fw-600">
@@ -173,8 +211,14 @@ const DashboardReview = () => {
                                       count={5}
                                       size={34}
                                       color2={"#ffd700"}
-                                      value={4}
+                                      value={Number(reviewData?.rating)}
                                       half={false}
+                                      onChange={(newRating) => {
+                                        setReviewData({
+                                          ...reviewData,
+                                          rating: newRating,
+                                        });
+                                      }}
                                     />
                                   </div>
                                 </div>
@@ -195,7 +239,11 @@ const DashboardReview = () => {
                 >
                   Close
                 </button>
-                <button data-bs-dismiss="modal" className="btn btn-primary">
+                <button
+                  onClick={handleSubmit}
+                  data-bs-dismiss="modal"
+                  className="btn btn-primary"
+                >
                   Submit review
                 </button>
               </div>

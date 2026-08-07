@@ -5,6 +5,7 @@ import {
   createReview,
   updateReview,
 } from "../api/review.api";
+import { SuccessToast } from "../helper/helper";
 
 export const useAllReview = () => {
   return useQuery({
@@ -20,14 +21,17 @@ export const useSingleReview = (id) => {
   });
 };
 
-export const useCreateReview = (data) => {
+export const useCreateReview = () => {
   return useMutation({
-    mutationFn: () => createReview(data),
+    mutationFn: (data) => createReview(data),
+    onSuccess: () => {
+      SuccessToast("Review created successfully");
+    },
   });
 };
 
-export const useUpdateReview = (id) => {
+export const useUpdateReview = () => {
   return useMutation({
-    mutationFn: () => updateReview(id),
+    mutationFn: (data) => updateReview(data),
   });
 };

@@ -43,10 +43,10 @@ export const useSingleInvoice = (id) => {
 };
 
 //Get invoice product list
-export const useInvoiceProduct = () => {
+export const useInvoiceProduct = (filter) => {
   return useQuery({
-    queryKey: ["invoice-product"],
-    queryFn: () => getInvoiceProduct(),
+    queryKey: ["invoice-product", filter],
+    queryFn: () => getInvoiceProduct(filter),
   });
 };
 

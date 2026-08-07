@@ -46,9 +46,11 @@ export const getSingleInvoice = async (id) => {
 };
 
 //Get invoice product list
-export const getInvoiceProduct = async () => {
+export const getInvoiceProduct = async (filter) => {
   try {
-    const res = await invoiceApi.get(`/invoice-product-list`);
+    const res = await invoiceApi.get(
+      `/invoice-product-list/?page=${filter?.page_no}`,
+    );
     if (res?.data?.success === true) {
       return res?.data?.data;
     }
