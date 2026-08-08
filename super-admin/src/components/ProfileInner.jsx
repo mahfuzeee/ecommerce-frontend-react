@@ -1,4 +1,45 @@
+import adminStore from "../store/adminStore";
+import { useState, useEffect } from "react";
+import { IsEmpty, ErrorToast } from "../helper/helper";
 const ProfileInner = () => {
+  const { adminUpdateLoading, adminUpdateRequest, admin } = adminStore();
+
+  const [data, setData] = useState({
+    email: "",
+    password: "",
+  });
+
+  useEffect(() => {
+    setData({
+      email: admin?.[0]?.email ?? "",
+      password: "",
+    });
+  }, [admin]);
+  const handleChange = (e) => {
+    setData({ ...data, [e.target.name]: e.target.value });
+  };
+
+  //Create validation rule
+  const validation = [
+    {
+      field: data.email,
+      message: "Email is required",
+    },
+    {
+      field: data.password,
+      message: "Password is required",
+    },
+  ];
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    for (const { field, message } of validation) {
+      if (IsEmpty(field)) {
+        return ErrorToast(message);
+      }
+    }
+    await adminUpdateRequest(data);
+  };
+
   return (
     <>
       {/* Cover Photo Start */}
@@ -34,7 +75,10 @@ const ProfileInner = () => {
                             </label>
                             <div className="position-relative">
                               <input
+                                onChange={handleChange}
                                 type="email"
+                                name="email"
+                                value={data?.email ?? ""}
                                 className="common-input common-input--withIcon common-input--withLeftIcon "
                               />
                               <span className="input-icon input-icon--left">
@@ -54,7 +98,9 @@ const ProfileInner = () => {
                             </label>
                             <div className="position-relative">
                               <input
+                                onChange={handleChange}
                                 type="password"
+                                name="password"
                                 className="common-input common-input--withIcon common-input--withLeftIcon "
                                 id="new-password"
                               />
@@ -62,8 +108,14 @@ const ProfileInner = () => {
                           </div>
 
                           <div className="col-sm-12 text-end">
-                            <button className="btn btn-main btn-lg  pill">
-                              Update Profile
+                            <button
+                              onClick={handleSubmit}
+                              disabled={adminUpdateLoading}
+                              className="btn btn-main btn-lg  pill"
+                            >
+                              {adminUpdateLoading
+                                ? "Updating..."
+                                : "Update Profile"}
                             </button>
                           </div>
                         </div>

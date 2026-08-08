@@ -12,7 +12,7 @@ const Login = () => {
     password: "",
   });
 
-  const { adminLoginRequest } = adminStore();
+  const { adminLoginRequest, adminLoginLoading } = adminStore();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -150,9 +150,11 @@ const Login = () => {
                 <div className="col-12">
                   <button
                     onClick={handleSubmit}
+                    type="submit"
+                    disabled={adminLoginLoading}
                     className="btn btn-main btn-lg w-100 pill"
                   >
-                    Sign In
+                    {adminLoginLoading ? "Loading..." : "Sign In"}
                   </button>
                 </div>
               </div>
