@@ -1,9 +1,158 @@
+import React, { useEffect, useState } from "react";
 import ReactQuill from "react-quill-new";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { formats, modules } from "../helper/helper";
 import Paginate from "../helper/Paginate";
+import {
+  useAllProduct,
+  useSingleProduct,
+  useUpdateProduct,
+  useDeleteProduct,
+} from "../hooks/useProduct";
+import { useGetAllCategory } from "../hooks/useCategory";
+import { useGetAllBrand } from "../hooks/useBrand";
+import { hostURL } from "../helper/config";
 
 const AllProducts = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const page = searchParams.get("page") || 1;
+  const limit = searchParams.get("limit") || 10;
+
+  const { data, isLoading } = useAllProduct({ page, limit });
+  const { products = [], pagination } = data || {};
+
+  const { data: categoryData } = useGetAllCategory();
+  const { data: brandData } = useGetAllBrand();
+
+  const { categories = [] } = categoryData || {};
+  const { brands = [] } = brandData || {};
+
+  const [selectedProductId, setSelectedProductId] = useState("");
+  const { data: selectedProduct } = useSingleProduct(selectedProductId);
+  const updateProduct = useUpdateProduct();
+  const deleteProduct = useDeleteProduct();
+
+  const initialForm = {
+    name: "",
+    short_des: "",
+    images: "",
+    price: "",
+    isDiscounted: false,
+    discountPrice: "",
+    category: "",
+    brand: "",
+    remark: "",
+    stock: "",
+    color: "",
+    size: "",
+    description: "",
+  };
+
+  const [form, setForm] = useState(initialForm);
+
+  useEffect(() => {
+    if (!selectedProduct) {
+      setForm(initialForm);
+      return;
+    }
+
+    setForm({
+      name: selectedProduct.name || "",
+      short_des: selectedProduct.short_des || "",
+      images: (selectedProduct.images || []).join(", "),
+      price: selectedProduct.price ?? "",
+      isDiscounted: Boolean(selectedProduct.isDiscounted),
+      discountPrice: selectedProduct.discountPrice ?? "",
+      category:
+        selectedProduct?.category?._id || selectedProduct?.category || "",
+      brand: selectedProduct?.brand?._id || selectedProduct?.brand || "",
+      remark: selectedProduct.remark || "",
+      stock: selectedProduct.stock ?? "",
+      color: (selectedProduct.color || []).join(", "),
+      size: (selectedProduct.size || []).join(", "),
+      description: selectedProduct.description || "",
+    });
+  }, [selectedProduct]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (name === "isDiscounted") {
+      setForm((p) => ({ ...p, [name]: value === "true" }));
+      return;
+    }
+    setForm((p) => ({ ...p, [name]: value }));
+  };
+
+  const handleQuillChange = (value) => {
+    setForm((p) => ({ ...p, description: value }));
+  };
+
+  const handlePageChange = ({ selected }) => {
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+
+      params.set("page", selected + 1);
+
+      return params;
+    });
+  };
+
+  const handleEditClick = (productId) => {
+    setSelectedProductId(productId);
+  };
+
+  const handleDeleteClick = (productId) => {
+    deleteProduct.mutate(
+      { id: productId },
+      {
+        onSuccess: () => {
+          if (selectedProductId === productId) {
+            setSelectedProductId("");
+            setForm(initialForm);
+          }
+        },
+      },
+    );
+  };
+
+  const handleUpdateSubmit = () => {
+    if (!selectedProductId) return;
+
+    const payload = {
+      name: form.name,
+      short_des: form.short_des,
+      images: form.images
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean),
+      price: Number(form.price) || 0,
+      isDiscounted: Boolean(form.isDiscounted),
+      discountPrice: form.discountPrice ? Number(form.discountPrice) : 0,
+      category: form.category,
+      brand: form.brand,
+      remark: form.remark,
+      stock: Number(form.stock) || 0,
+      color: form.color
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean),
+      size: form.size
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean),
+      description: form.description,
+    };
+
+    updateProduct.mutate(
+      { id: selectedProductId, data: payload },
+      {
+        onSuccess: () => {
+          setForm(initialForm);
+          setSelectedProductId("");
+        },
+      },
+    );
+  };
   return (
     <>
       {/* Cover Photo Start */}
@@ -32,55 +181,81 @@ const AllProducts = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      <tr className="super_admin_all-product">
-                        <td>
-                          <img
-                            src={`https://placehold.co/60x60`}
-                            alt=""
-                            className="cover-img"
-                          />
-                        </td>
-                        <td>
-                          {" "}
-                          <h6 className="product-item__title">
-                            <Link
-                              to={`http://localhost:3001/super-admin/product-details?product_id=1`}
-                              className="link"
-                            >
-                              Baby Toy Car
-                            </Link>
-                          </h6>
-                        </td>
-                        <td>
-                          <div className="flx-align justify-content-center gap-2">
-                            <h6 className="product-item__price mb-0">৳900</h6>
-                            <span className="product-item__prevPrice font-12 text-danger text-decoration-line-through">
-                              ৳900
-                            </span>
-                          </div>{" "}
-                        </td>
-                        <td> Yes</td>
-                        <td> 100</td>
-                        <td>
-                          <div className="d-flex justify-content-end gap-2">
-                            <button
-                              className="btn btn-success"
-                              data-bs-toggle="modal"
-                              data-bs-target={`#exampleModal_${1}`}
-                              onClick={() => readSingleProduct(item?._id)}
-                            >
-                              Edit
-                            </button>
-                            <button className="btn btn-danger">Delete</button>
-                          </div>
-                        </td>
-                      </tr>
+                      {isLoading && <tr>Loading...</tr>}
+                      {products.length === 0 && <tr>No Product Found</tr>}
+
+                      {products.map((item, index) => (
+                        <tr className="super_admin_all-product" key={index}>
+                          <td>
+                            <img
+                              src={item?.images[0]}
+                              alt={item?.name}
+                              style={{ width: "70px", height: "60px" }}
+                              className="cover-img"
+                            />
+                          </td>
+                          <td>
+                            {" "}
+                            <h6 className="product-item__title">
+                              <Link
+                                to={`${hostURL}/product-details?product_id=${item?._id}`}
+                                className="link"
+                              >
+                                {item?.name}
+                              </Link>
+                            </h6>
+                          </td>
+                          <td>
+                            <div className="flx-align justify-content-center gap-2">
+                              <h6 className="product-item__price mb-0">
+                                ৳
+                                {item?.isDiscounted
+                                  ? item?.discountPrice
+                                  : item?.price}
+                              </h6>
+                              {item?.isDiscounted && (
+                                <span className="product-item__prevPrice font-12 text-danger text-decoration-line-through">
+                                  ৳{item?.price}
+                                </span>
+                              )}
+                            </div>{" "}
+                          </td>
+                          <td> {item?.isDiscounted ? "Yes" : "No"}</td>
+                          <td> {item?.stock}</td>
+                          <td>
+                            <div className="d-flex justify-content-end gap-2">
+                              <button
+                                className="btn btn-success"
+                                data-bs-toggle="modal"
+                                data-bs-target={`#exampleModal_${1}`}
+                                onClick={() => handleEditClick(item?._id)}
+                              >
+                                Edit
+                              </button>
+                              <button
+                                className="btn btn-danger"
+                                onClick={() => handleDeleteClick(item?._id)}
+                                disabled={deleteProduct.isLoading}
+                              >
+                                {deleteProduct.isLoading
+                                  ? "Deleting..."
+                                  : "Delete"}
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                   <div className="flx-between justify-content-end gap-2">
                     <nav aria-label="Page navigation example">
                       <div>
-                        <Paginate page_no={1} per_page={5} totalCount={10} />
+                        <Paginate
+                          handelPageClick={handlePageChange}
+                          page_no={page}
+                          per_page={limit}
+                          totalCount={pagination?.totalProducts}
+                        />
                       </div>
                     </nav>
                   </div>
@@ -129,8 +304,10 @@ const AllProducts = () => {
                                       Title
                                     </label>
                                     <input
-                                      value={"Baby Toy Car"}
                                       type="text"
+                                      name="name"
+                                      value={form.name}
+                                      onChange={handleChange}
                                       className="common-input border"
                                     />
                                   </div>
@@ -139,10 +316,10 @@ const AllProducts = () => {
                                       Short Description
                                     </label>
                                     <input
-                                      value={
-                                        "A fun and safe toy car for babies."
-                                      }
                                       type="text"
+                                      name="short_des"
+                                      value={form.short_des}
+                                      onChange={handleChange}
                                       className="common-input border"
                                     />
                                   </div>
@@ -152,11 +329,9 @@ const AllProducts = () => {
                                       image_1.png, image_2.jpg, image_3.png)
                                     </label>
                                     <textarea
-                                      value={
-                                        "image_1.png, image_2.jpg, image_3.png"
-                                      }
-                                      name=""
-                                      id=""
+                                      name="images"
+                                      value={form.images}
+                                      onChange={handleChange}
                                       className="common-input border"
                                     ></textarea>
                                   </div>
@@ -165,8 +340,10 @@ const AllProducts = () => {
                                       Price
                                     </label>
                                     <input
-                                      value={1000}
                                       type="number"
+                                      name="price"
+                                      value={form.price}
+                                      onChange={handleChange}
                                       className="common-input border"
                                     />
                                   </div>
@@ -176,11 +353,13 @@ const AllProducts = () => {
                                     </label>
                                     <div className="select-has-icon">
                                       <select
+                                        name="isDiscounted"
+                                        value={String(form.isDiscounted)}
+                                        onChange={handleChange}
                                         className="common-input border"
-                                        value={true}
                                       >
-                                        <option value={true}>True</option>
-                                        <option value={false}>False</option>
+                                        <option value={"true"}>True</option>
+                                        <option value={"false"}>False</option>
                                       </select>
                                     </div>
                                   </div>
@@ -189,8 +368,10 @@ const AllProducts = () => {
                                       Discount Price
                                     </label>
                                     <input
-                                      value={500}
                                       type="number"
+                                      name="discountPrice"
+                                      value={form.discountPrice}
+                                      onChange={handleChange}
                                       className="common-input border"
                                     />
                                   </div>
@@ -201,14 +382,22 @@ const AllProducts = () => {
                                     </label>
                                     <div className="select-has-icon">
                                       <select
+                                        name="category"
+                                        value={form.category}
+                                        onChange={handleChange}
                                         className="common-input border"
-                                        value={"Baby"}
                                       >
                                         <option value={""}>
                                           Please Select A Category **
                                         </option>
-                                        <option value={123}>Laptop</option>
-                                        <option value={123}>Baby</option>
+                                        {categories.map((category, index) => (
+                                          <option
+                                            value={category?._id}
+                                            key={index}
+                                          >
+                                            {category?.name}
+                                          </option>
+                                        ))}
                                       </select>
                                     </div>
                                   </div>
@@ -218,14 +407,22 @@ const AllProducts = () => {
                                     </label>
                                     <div className="select-has-icon">
                                       <select
+                                        name="brand"
+                                        value={form.brand}
+                                        onChange={handleChange}
                                         className="common-input border"
-                                        value={"Walton"}
                                       >
                                         <option value={""}>
                                           Please Select A Brand **
                                         </option>
-                                        <option value={123}>Waltop</option>
-                                        <option value={123}>Squaire</option>
+                                        {brands.map((brand, index) => (
+                                          <option
+                                            value={brand?._id}
+                                            key={index}
+                                          >
+                                            {brand?.name}
+                                          </option>
+                                        ))}
                                       </select>
                                     </div>
                                   </div>
@@ -234,8 +431,10 @@ const AllProducts = () => {
                                       Remark (Ex: New)
                                     </label>
                                     <input
-                                      value={"New"}
                                       type="text"
+                                      name="remark"
+                                      value={form.remark}
+                                      onChange={handleChange}
                                       className="common-input border"
                                     />
                                   </div>
@@ -244,8 +443,10 @@ const AllProducts = () => {
                                       Stock
                                     </label>
                                     <input
-                                      value={50}
                                       type="number"
+                                      name="stock"
+                                      value={form.stock}
+                                      onChange={handleChange}
                                       className="common-input border"
                                     />
                                   </div>
@@ -254,8 +455,10 @@ const AllProducts = () => {
                                       Color (Ex: Red, Green, Blue)
                                     </label>
                                     <input
-                                      value={"Red, Green, Blue"}
                                       type="text"
+                                      name="color"
+                                      value={form.color}
+                                      onChange={handleChange}
                                       className="common-input border"
                                     />
                                   </div>
@@ -265,8 +468,10 @@ const AllProducts = () => {
                                       Size (Ex: XXL, XL, X)
                                     </label>
                                     <input
-                                      value={"XXL, XL, X"}
                                       type="text"
+                                      name="size"
+                                      value={form.size}
+                                      onChange={handleChange}
                                       className="common-input border"
                                     />
                                   </div>
@@ -280,7 +485,8 @@ const AllProducts = () => {
                                       theme="snow"
                                       modules={modules}
                                       formats={formats}
-                                      value={"This is a sample description."}
+                                      value={form.description}
+                                      onChange={handleQuillChange}
                                     />
                                   </div>
                                 </div>
@@ -302,11 +508,12 @@ const AllProducts = () => {
                   Close
                 </button>
                 <button
-                  data-bs-dismiss="modal"
                   type="button"
                   className="btn btn-primary"
+                  disabled={updateProduct.isLoading}
+                  onClick={handleUpdateSubmit}
                 >
-                  Update Product
+                  {updateProduct.isLoading ? "Updating..." : "Update Product"}
                 </button>
               </div>
             </div>

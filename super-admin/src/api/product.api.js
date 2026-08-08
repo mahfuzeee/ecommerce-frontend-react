@@ -1,12 +1,13 @@
 import { productApi } from "../helper/api";
 
-export const getAllProduct = async ({
-  page,
-  limit,
-  brand_id,
-  category_id,
-  keyword,
-}) => {
+export const getAllProduct = async (params = {}) => {
+  const {
+    page = "",
+    limit = "",
+    brand_id = "",
+    category_id = "",
+    keyword = "",
+  } = params;
   const res = await productApi.get("/", {
     params: {
       page,

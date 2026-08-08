@@ -9,9 +9,8 @@ import {
 import { ErrorToast, SuccessToast } from "../helper/helper";
 
 export const useAllProduct = (filter) => {
-  const { page, limit, brand_id, category_id, keyword } = filter;
   return useQuery({
-    queryKey: ["products", page, limit, brand_id, category_id, keyword],
+    queryKey: ["products", filter],
     queryFn: () => getAllProduct(filter),
     keepPreviousData: true,
   });
