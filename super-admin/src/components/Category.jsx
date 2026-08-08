@@ -1,7 +1,68 @@
 import { baseURLFile } from "../helper/config";
 import Paginate from "../helper/Paginate";
+import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import {
+  useGetAllCategory,
+  useCreateCategory,
+  useDeleteCategory,
+  useUpdateCategory,
+} from "../hooks/useCategory";
 
 const Category = () => {
+  //Search Params
+  const [searchParams, setSearchParams] = useSearchParams();
+  const page = searchParams.get("page") || 1;
+  const limit = searchParams.get("limit") || 10;
+
+  const { data: categoryData, refetch: refetchCategories } = useGetAllCategory({
+    page,
+    limit,
+  });
+  const { categories = [], pagination } = categoryData || {};
+
+  const createCategory = useCreateCategory();
+
+  const initialForm = {
+    name: "",
+    images: "",
+  };
+
+  const [form, setForm] = useState(initialForm);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((p) => ({ ...p, [name]: value }));
+  };
+
+  const handleSubmit = (e) => {
+    e?.preventDefault();
+
+    const payload = {
+      name: form.name,
+      images: form.images,
+    };
+
+    createCategory.mutate(payload, {
+      onSuccess: () => {
+        setForm(initialForm);
+        refetchCategories?.();
+      },
+    });
+  };
+
+  //Handle page change function
+  const handlePageChange = ({ selected }) => {
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+
+      params.set("page", selected + 1);
+
+      return params;
+    });
+  };
+
   return (
     <>
       {/* Cover Photo Start */}
@@ -29,6 +90,9 @@ const Category = () => {
                             </label>
                             <input
                               type="text"
+                              name="name"
+                              value={form.name}
+                              onChange={handleChange}
                               className="common-input border"
                             />
                           </div>
@@ -38,13 +102,23 @@ const Category = () => {
                             </label>
                             <input
                               type="text"
+                              name="images"
+                              value={form.images}
+                              onChange={handleChange}
+                              placeholder="image1.png, image2.jpg"
                               className="common-input border"
                             />
                           </div>
 
                           <div className="col-sm-12 text-end">
-                            <button className="btn btn-main btn-lg pill mt-4 ">
-                              Create Category
+                            <button
+                              className="btn btn-main btn-lg pill mt-4 "
+                              onClick={handleSubmit}
+                              disabled={createCategory.isLoading}
+                            >
+                              {createCategory.isLoading
+                                ? "Creating..."
+                                : "Create Category"}
                             </button>
                           </div>
                         </div>
@@ -67,43 +141,44 @@ const Category = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        <tr>
-                          <td>
-                            <div className="img-100">
-                              <img
-                                src={`https://placehold.co/60x60`}
-                                alt=""
-                              />
-                            </div>
-                          </td>
-                          <td>Baby Collection</td>
-                          <td>
-                            <div className="d-flex justify-content-end gap-2">
-                              <button
-                                className="btn btn-success"
-                                data-bs-toggle="modal"
-                                data-bs-target={`#exampleModal_${1}`}
-                              >
-                                Edit
-                              </button>
-                              <button
-                                className="btn btn-danger"
-                              >
-                                Delete
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
+                        {categories.map((category, index) => (
+                          <tr key={category?._id || index}>
+                            <td>
+                              <div className="img-100">
+                                <img
+                                  src={category?.images}
+                                  alt={category?.name}
+                                />
+                              </div>
+                            </td>
+                            <td>{category?.name}</td>
+                            <td>
+                              <div className="d-flex justify-content-end gap-2">
+                                <button
+                                  className="btn btn-success"
+                                  data-bs-toggle="modal"
+                                  data-bs-target={`#exampleModal_${1}`}
+                                >
+                                  Edit
+                                </button>
+                                <button className="btn btn-danger">
+                                  Delete
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                     <div className="flx-between justify-content-end gap-2">
                       <nav aria-label="Page navigation example">
                         <div>
-                            <Paginate
-                              page_no={1}
-                              per_page={5}
-                              totalCount={10}
-                            />
+                          <Paginate
+                            handelPageClick={handlePageChange}
+                            page_no={page}
+                            per_page={limit}
+                            totalCount={pagination?.totalCategories}
+                          />
                         </div>
                       </nav>
                     </div>

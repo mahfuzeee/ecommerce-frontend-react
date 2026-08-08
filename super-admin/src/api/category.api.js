@@ -28,7 +28,7 @@ export const getCategory = async (id) => {
 
 //Create category
 export const createCategory = async (data) => {
-  const res = await categoryApi.post("/", data);
+  const res = await categoryApi.post("/create", data);
   if (res?.data?.success === true) {
     return res?.data?.data;
   } else {

@@ -35,3 +35,27 @@ export const useCreateCategory = () => {
     },
   });
 };
+
+//Update a category
+export const useUpdateCategory = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }) => updateCategory({ id, data }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["categories"]);
+      SuccessToast("Category updated successfully");
+    },
+  });
+};
+
+//Delete a category
+export const useDeleteCategory = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id) => deleteCategory(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["categories"]);
+      SuccessToast("Category deleted successfully");
+    },
+  });
+};
