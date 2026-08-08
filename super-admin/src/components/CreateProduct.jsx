@@ -1,7 +1,106 @@
+import React, { useState } from "react";
 import ReactQuill from "react-quill-new";
 import { formats, modules } from "../helper/helper";
+import { useCreateProduct } from "../hooks/useProduct";
+import { ErrorToast } from "../helper/helper";
+import { useGetAllCategory } from "../hooks/useCategory";
+import { useGetAllBrand } from "../hooks/useBrand";
 
 const CreateProduct = () => {
+  const createProduct = useCreateProduct();
+
+  const { data: categoryData } = useGetAllCategory();
+  const { data: brandData } = useGetAllBrand();
+
+  const { categories = [] } = categoryData || {};
+
+  const { brands = [] } = brandData || {};
+
+  console.log(brands);
+
+  const initialForm = {
+    name: "",
+    short_des: "",
+    images: "",
+    price: "",
+    isDiscounted: false,
+    discountPrice: "",
+    category: "",
+    brand: "",
+    remark: "",
+    stock: "",
+    color: "",
+    size: "",
+    description: "",
+  };
+
+  const [form, setForm] = useState(initialForm);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (name === "isDiscounted") {
+      setForm((p) => ({ ...p, [name]: value === "true" }));
+      return;
+    }
+    setForm((p) => ({ ...p, [name]: value }));
+  };
+
+  const handleQuillChange = (val) => {
+    setForm((p) => ({ ...p, description: val }));
+  };
+
+  const handleSubmit = (e) => {
+    e?.preventDefault();
+
+    const categoryId =
+      categories.find(
+        (category) =>
+          category?._id === form.category ||
+          category?.id === form.category ||
+          category?.name === form.category ||
+          category?.title === form.category,
+      )?._id || form.category;
+    const brandId =
+      brands.find(
+        (brand) =>
+          brand?._id === form.brand ||
+          brand?.id === form.brand ||
+          brand?.name === form.brand ||
+          brand?.title === form.brand,
+      )?._id || form.brand;
+
+    const payload = {
+      name: form.name,
+      short_des: form.short_des,
+      images: form.images
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean),
+      price: Number(form.price) || 0,
+      isDiscounted: Boolean(form.isDiscounted),
+      discountPrice: form.discountPrice ? Number(form.discountPrice) : 0,
+      category: categoryId,
+      brand: brandId,
+      remark: form.remark,
+      stock: Number(form.stock) || 0,
+      color: form.color
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean),
+      size: form.size
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean),
+      description: form.description,
+    };
+
+    createProduct.mutate(payload, {
+      onSuccess: () => {
+        setForm(initialForm);
+      },
+    });
+  };
+
   return (
     <>
       {/* Cover Photo Start */}
@@ -29,6 +128,9 @@ const CreateProduct = () => {
                             </label>
                             <input
                               type="text"
+                              name="name"
+                              value={form.name}
+                              onChange={handleChange}
                               className="common-input border"
                             />
                           </div>
@@ -38,6 +140,9 @@ const CreateProduct = () => {
                             </label>
                             <input
                               type="text"
+                              name="short_des"
+                              value={form.short_des}
+                              onChange={handleChange}
                               className="common-input border"
                             />
                           </div>
@@ -47,8 +152,9 @@ const CreateProduct = () => {
                               image_1.png, image_2.jpg, image_3.png)
                             </label>
                             <textarea
-                              name=""
-                              id=""
+                              name="images"
+                              value={form.images}
+                              onChange={handleChange}
                               className="common-input border"
                             ></textarea>
                           </div>
@@ -58,6 +164,9 @@ const CreateProduct = () => {
                             </label>
                             <input
                               type="number"
+                              name="price"
+                              value={form.price}
+                              onChange={handleChange}
                               className="common-input border"
                             />
                           </div>
@@ -66,9 +175,14 @@ const CreateProduct = () => {
                               Is Discount?
                             </label>
                             <div className="select-has-icon">
-                              <select className="common-input border">
-                                <option value={true}>True</option>
-                                <option value={false}>False</option>
+                              <select
+                                name="isDiscounted"
+                                value={String(form.isDiscounted)}
+                                onChange={handleChange}
+                                className="common-input border"
+                              >
+                                <option value={"true"}>True</option>
+                                <option value={"false"}>False</option>
                               </select>
                             </div>
                           </div>
@@ -78,6 +192,9 @@ const CreateProduct = () => {
                             </label>
                             <input
                               type="number"
+                              name="discountPrice"
+                              value={form.discountPrice}
+                              onChange={handleChange}
                               className="common-input border"
                             />
                           </div>
@@ -87,14 +204,29 @@ const CreateProduct = () => {
                               Category
                             </label>
                             <div className="select-has-icon">
-                              <select className="common-input border">
+                              <select
+                                name="category"
+                                value={form.category}
+                                onChange={handleChange}
+                                className="common-input border"
+                              >
                                 <option value={""}>
                                   Please Select A Category **
                                 </option>
-                                <option>Laptop</option>
-                                <option>Baby</option>
-                                <option>Women</option>
-                                <option>Man</option>
+                                {categories.map((category, index) => (
+                                  <option
+                                    value={
+                                      category?._id ||
+                                      category?.id ||
+                                      category?.name
+                                    }
+                                    key={index}
+                                  >
+                                    {category?.name ||
+                                      category?.title ||
+                                      category}
+                                  </option>
+                                ))}
                               </select>
                             </div>
                           </div>
@@ -103,14 +235,25 @@ const CreateProduct = () => {
                               Brand
                             </label>
                             <div className="select-has-icon">
-                              <select className="common-input border">
+                              <select
+                                name="brand"
+                                value={form.brand}
+                                onChange={handleChange}
+                                className="common-input border"
+                              >
                                 <option value={""}>
                                   Please Select A Brand **
                                 </option>
-                                <option>HP</option>
-                                <option>Walton</option>
-                                <option>LG</option>
-                                <option>Apple</option>
+                                {brands.map((brand, index) => (
+                                  <option
+                                    value={
+                                      brand?._id || brand?.id || brand?.name
+                                    }
+                                    key={index}
+                                  >
+                                    {brand?.name || brand?.title || brand}
+                                  </option>
+                                ))}
                               </select>
                             </div>
                           </div>
@@ -120,6 +263,9 @@ const CreateProduct = () => {
                             </label>
                             <input
                               type="text"
+                              name="remark"
+                              value={form.remark}
+                              onChange={handleChange}
                               className="common-input border"
                             />
                           </div>
@@ -129,6 +275,9 @@ const CreateProduct = () => {
                             </label>
                             <input
                               type="number"
+                              name="stock"
+                              value={form.stock}
+                              onChange={handleChange}
                               className="common-input border"
                             />
                           </div>
@@ -138,6 +287,9 @@ const CreateProduct = () => {
                             </label>
                             <input
                               type="text"
+                              name="color"
+                              value={form.color}
+                              onChange={handleChange}
                               className="common-input border"
                             />
                           </div>
@@ -148,6 +300,9 @@ const CreateProduct = () => {
                             </label>
                             <input
                               type="text"
+                              name="size"
+                              value={form.size}
+                              onChange={handleChange}
                               className="common-input border"
                             />
                           </div>
@@ -161,13 +316,20 @@ const CreateProduct = () => {
                               theme="snow"
                               modules={modules}
                               formats={formats}
-                              value={""}
+                              value={form.description}
+                              onChange={handleQuillChange}
                             />
                           </div>
 
                           <div className="col-sm-12 text-end">
-                            <button className="btn btn-main btn-lg pill mt-4">
-                              Create Product
+                            <button
+                              className="btn btn-main btn-lg pill mt-4"
+                              onClick={handleSubmit}
+                              disabled={createProduct.isLoading}
+                            >
+                              {createProduct.isLoading
+                                ? "Creating..."
+                                : "Create Product"}
                             </button>
                           </div>
                         </div>

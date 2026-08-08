@@ -116,7 +116,6 @@ class FormHelper {
     "strike",
     "blockquote",
     "list",
-    "bullet",
     "indent",
     "link",
     "image",

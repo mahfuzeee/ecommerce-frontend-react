@@ -12,7 +12,7 @@ import { SuccessToast } from "../helper/helper";
 export const useGetAllCategory = (pagination) => {
   return useQuery({
     queryKey: ["categories", pagination],
-    queryFn: () => getCategory(pagination),
+    queryFn: () => getAllCategory(pagination),
     keepPreviousData: true,
   });
 };

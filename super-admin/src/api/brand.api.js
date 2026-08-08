@@ -1,6 +1,7 @@
 import { brandApi } from "../helper/api";
 
-export const getAllBrand = async ({ page, limit }) => {
+export const getAllBrand = async (params = {}) => {
+  const { page = "", limit = "" } = params;
   const res = await brandApi.get("/", {
     params: {
       page,

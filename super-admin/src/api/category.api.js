@@ -1,6 +1,7 @@
 import { categoryApi } from "../helper/api";
 
-export const getAllCategory = async ({ page, limit }) => {
+export const getAllCategory = async (params = {}) => {
+  const { page = "", limit = "" } = params;
   const res = await categoryApi.get("/", {
     params: {
       page,
