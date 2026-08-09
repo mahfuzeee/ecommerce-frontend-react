@@ -1,6 +1,11 @@
-import { getAllBrand } from "../api/brand.api";
+import {
+  createBrand,
+  updateBrand,
+  getBrand,
+  deleteBrand,
+  getAllBrand,
+} from "../api/brand.api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createBrand } from "../api/brand.api";
 import { SuccessToast, ErrorToast } from "../helper/helper";
 export const useGetAllBrand = (pagination) => {
   return useQuery({
@@ -10,10 +15,13 @@ export const useGetAllBrand = (pagination) => {
   });
 };
 
-export const useCreateBrand = (data) => {
+//Create a new brand
+export const useCreateBrand = () => {
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: () => createBrand(data),
+    mutationFn: (data) => createBrand(data),
     onSuccess: () => {
+      queryClient.invalidateQueries(["brands"]);
       SuccessToast("Brand created successfully");
     },
     onError: (error) => {
@@ -23,7 +31,7 @@ export const useCreateBrand = (data) => {
 };
 
 //Get a single brand
-export const useGetBrand = (id) => {
+export const useSingleBrand = (id) => {
   return useQuery({
     queryKey: ["brand", id],
     queryFn: () => getBrand(id),
@@ -39,6 +47,18 @@ export const useUpdateBrand = () => {
     onSuccess: () => {
       queryClient.invalidateQueries(["brand"]);
       SuccessToast("Brand updated successfully");
+    },
+  });
+};
+
+//Delete a brand hooks
+export const useDeleteBrand = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id) => deleteBrand(id),
+    onSuccess: (response) => {
+      queryClient.invalidateQueries(["brands"]);
+      SuccessToast(response?.data?.message || "Brand deleted successfully");
     },
   });
 };

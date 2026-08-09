@@ -8,6 +8,7 @@ import {
   useCreateCategory,
   useDeleteCategory,
   useUpdateCategory,
+  useSingleCategory,
 } from "../hooks/useCategory";
 
 const Category = () => {
@@ -16,13 +17,21 @@ const Category = () => {
   const page = searchParams.get("page") || 1;
   const limit = searchParams.get("limit") || 10;
 
+  //States for selected Category id
+  const [selectedCategoryId, setSelectedCategoryId] = useState("");
+
   const { data: categoryData, refetch: refetchCategories } = useGetAllCategory({
     page,
     limit,
   });
   const { categories = [], pagination } = categoryData || {};
 
+  const { data: selectedCategory } =
+    useSingleCategory(selectedCategoryId) || {};
+
   const createCategory = useCreateCategory();
+  const deleteCategory = useDeleteCategory();
+  const updateCategory = useUpdateCategory();
 
   const initialForm = {
     name: "",
@@ -36,6 +45,19 @@ const Category = () => {
     setForm((p) => ({ ...p, [name]: value }));
   };
 
+  //Getting single category
+  useEffect(() => {
+    if (!selectedCategory) {
+      setForm(initialForm);
+      return;
+    }
+
+    setForm({
+      name: selectedCategory.name || "",
+      images: selectedCategory.images || "",
+    });
+  }, [selectedCategory]);
+
   const handleSubmit = (e) => {
     e?.preventDefault();
 
@@ -48,6 +70,40 @@ const Category = () => {
       onSuccess: () => {
         setForm(initialForm);
         refetchCategories?.();
+      },
+    });
+  };
+
+  //Handle Edit click
+  const handleEditClick = (id) => {
+    setSelectedCategoryId(id);
+  };
+
+  //Handle update click
+  const handleUpdateClick = () => {
+    if (!selectedCategoryId) return;
+
+    updateCategory.mutate(
+      { id: selectedCategoryId, data: form },
+      {
+        onSuccess: () => {
+          setSelectedCategoryId("");
+          setForm(initialForm);
+          refetchCategories?.();
+        },
+      },
+    );
+  };
+
+  //Handle Delete click
+  const handleDeleteClick = (id) => {
+    deleteCategory.mutate(id, {
+      onSuccess: () => {
+        if (selectedCategoryId === id) {
+          setSelectedCategoryId("");
+          setForm(initialForm);
+          refetchCategories?.();
+        }
       },
     });
   };
@@ -155,13 +211,17 @@ const Category = () => {
                             <td>
                               <div className="d-flex justify-content-end gap-2">
                                 <button
+                                  onClick={handleEditClick(category?._id)}
                                   className="btn btn-success"
                                   data-bs-toggle="modal"
                                   data-bs-target={`#exampleModal_${1}`}
                                 >
                                   Edit
                                 </button>
-                                <button className="btn btn-danger">
+                                <button
+                                  onClick={handleDeleteClick(category?._id)}
+                                  className="btn btn-danger"
+                                >
                                   Delete
                                 </button>
                               </div>
@@ -225,7 +285,9 @@ const Category = () => {
                                 Category name
                               </label>
                               <input
-                                value="Baby Collection"
+                                onChange={handleChange}
+                                name="name"
+                                value={form.name}
                                 type="text"
                                 className="common-input border"
                               />
@@ -235,7 +297,9 @@ const Category = () => {
                                 Image Single
                               </label>
                               <input
-                                value="https://placehold.co/60x60"
+                                onChange={handleChange}
+                                name="images"
+                                value={form.images}
                                 type="text"
                                 className="common-input border"
                               />
@@ -256,11 +320,13 @@ const Category = () => {
                   Close
                 </button>
                 <button
+                  onClick={handleUpdateClick}
+                  disabled={updateCategory.isLoading}
                   type="button"
                   className="btn btn-primary"
                   data-bs-dismiss="modal"
                 >
-                  Update Category
+                  {updateCategory.isLoading ? "Updating..." : "Update Category"}
                 </button>
               </div>
             </div>

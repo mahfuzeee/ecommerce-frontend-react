@@ -16,7 +16,7 @@ export const getAllBrand = async (params = {}) => {
 };
 
 export const createBrand = async (data) => {
-  const res = await brandApi.post("/", data);
+  const res = await brandApi.post("/create", data);
   if (res?.data?.success === true) {
     return res?.data?.data;
   } else {
@@ -42,7 +42,7 @@ export const updateBrand = async ({ id, data }) => {
   }
 };
 
-export const deleteBrand = async ({ id }) => {
+export const deleteBrand = async (id) => {
   const res = await brandApi.delete(`/${id}`);
   if (res?.data?.success === true) {
     return res?.data?.data;

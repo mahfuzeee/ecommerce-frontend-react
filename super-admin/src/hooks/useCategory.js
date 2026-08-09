@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getAllCategory,
   createCategory,
@@ -18,7 +18,7 @@ export const useGetAllCategory = (pagination) => {
 };
 
 //Get category by id hook
-export const useGetCategory = (id) => {
+export const useSingleCategory = (id) => {
   return useQuery({
     queryKey: ["category", id],
     queryFn: () => getCategory(id),
