@@ -1,6 +1,57 @@
 import Paginate from "../helper/Paginate";
+import { useState } from "react";
+import { useAllInvoice, useSingleInvoice } from "../hooks/useInvoice";
+import { useSearchParams } from "react-router-dom";
+import { formatDate } from "../helper/helper";
 
 const AllOrders = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const page = searchParams.get("page") || 1;
+  const limit = searchParams.get("limit") || 10;
+
+  //State for setting invoice id for viewing a invoice.
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState("");
+
+  //Data fetching using hooks.
+  const { data: allInvoiceData } = useAllInvoice({
+    page,
+    limit,
+  });
+
+  const invoiceData = Array.isArray(allInvoiceData)
+    ? allInvoiceData[0]
+    : allInvoiceData;
+  const allInvoice = invoiceData?.invoices || [];
+  const totalCount = invoiceData?.totalCount?.[0]?.count || 0;
+
+  const { data: selectedInvoiceData, isLoading: isInvoiceLoading } =
+    useSingleInvoice(selectedInvoiceId);
+
+  const selectedInvoice = Array.isArray(selectedInvoiceData)
+    ? selectedInvoiceData[0]
+    : selectedInvoiceData;
+
+  const billing = selectedInvoice?.cus_details?.[0] || {};
+  const shipping = selectedInvoice?.ship_details?.[0] || {};
+  const invoiceProducts = selectedInvoice?.invoiceProducts || [];
+
+  //Handle view invoice function
+  const handleViewInvoice = (id) => {
+    setSelectedInvoiceId(id);
+  };
+
+  //Handle page change function
+  const handlePageChange = ({ selected }) => {
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+
+      params.set("page", selected + 1);
+
+      return params;
+    });
+  };
+
   return (
     <div className="dashboard-body__content">
       {/* ========================= Statement section start =========================== */}
@@ -50,61 +101,72 @@ const AllOrders = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>December 1, 2025</td>
-                      <td>Alex Johnson</td>
+                    {allInvoice.length === 0 && <tr>No Data Found</tr>}
+                    {allInvoice.map((order, index) => (
+                      <tr key={index}>
+                        <td>{formatDate(order?.createdAt)}</td>
+                        <td>{order?.cus_details?.[0]?.name}</td>
 
-                      <td>
-                        <span>1</span>
-                      </td>
-                      <td>
-                        <span
-                          className={`badge text-capitalize rounded-pill bg-success`}
-                        >
-                          success
-                        </span>{" "}
-                      </td>
-                      <td>
-                        <span
-                          className={`badge text-capitalize rounded-pill bg-warning`}
-                        >
-                          Pending
-                        </span>
-                      </td>
-                      <td>
-                        <button>
-                          <select
-                            // disabled={item?.deliver_status === "cancel"}
-                            className=" common-input border custom"
-                            defaultValue={"pending"}
+                        <td>
+                          <span>{order?._id}</span>
+                        </td>
+                        <td>
+                          <span
+                            className={`badge text-capitalize rounded-pill bg-success`}
                           >
-                            <option value={"pending"}>Pending</option>
-                            <option value={"delivered"}>Delivered</option>
-                            <option value={"cancel"}>Cancel</option>
-                          </select>
-                        </button>
-                      </td>
+                            success
+                          </span>{" "}
+                        </td>
+                        <td>
+                          <span
+                            className={`badge text-capitalize rounded-pill bg-warning`}
+                          >
+                            Pending
+                          </span>
+                        </td>
+                        <td>
+                          <button>
+                            <select
+                              // disabled={item?.deliver_status === "cancel"}
+                              className=" common-input border custom"
+                              defaultValue={"pending"}
+                            >
+                              <option value={"pending"}>Pending</option>
+                              <option value={"delivered"}>Delivered</option>
+                              <option value={"cancel"}>Cancel</option>
+                            </select>
+                          </button>
+                        </td>
 
-                      <td>
-                        <p> 1000</p>
-                      </td>
-                      <td>
-                        <button
-                          className="btn btn-success"
-                          data-bs-toggle="modal"
-                          data-bs-target={`#exampleModal_1`}
-                        >
-                          View
-                        </button>
-                      </td>
-                    </tr>
+                        <td>
+                          <p>{order?.totalPayable}</p>
+                        </td>
+                        <td>
+                          <button
+                            onClick={() => handleViewInvoice(order?._id)}
+                            className="btn btn-success"
+                            data-bs-toggle="modal"
+                            data-bs-target={`#exampleModal_1`}
+                          >
+                            View
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
               <div className="flx-between justify-content-end gap-2">
                 <nav aria-label="Page navigation example">
                   <div>
-                    <Paginate page_no={1} per_page={5} totalCount={10} />
+                    {allInvoice.length > 0 && (
+                      <Paginate
+                        handelPageClick={handlePageChange}
+                        page_no={page}
+                        per_page={limit}
+                        totalCount={totalCount}
+                      />
+                    )}
                   </div>
                 </nav>
               </div>
@@ -147,15 +209,19 @@ const AllOrders = () => {
                           <div className="row mb-4 border-bottom pb-3">
                             <div className="col-sm-6">
                               <h2 className="fw-bold">INVOICE</h2>
-                              <p className="mb-0">#INV no: 1</p>
                               <p className="mb-0">
-                                #TRA no: f43rffd44rrrt3333bg
+                                #INV no: {selectedInvoice?._id}
                               </p>
-                              <small>Date: 01/01/2025</small>
+                              <p className="mb-0">
+                                #TRA no: {selectedInvoice?.tran_id}
+                              </p>
+                              <small>
+                                {formatDate(selectedInvoice?.createdAt)}
+                              </small>
                             </div>
                             <div className="col-sm-6 text-end">
                               <h5 className="fw-bold">PixBO</h5>
-                              <p className="mb-0">123 Street, Chittagong</p>
+                              <p className="mb-0">123 Street, Dhaka</p>
                               <p className="mb-0">support@pixbo.com</p>
                               <p className="mb-0">+880 1234 567 890</p>
                             </div>
@@ -165,36 +231,34 @@ const AllOrders = () => {
                           <div className="row mb-4">
                             <div className="col-sm-6">
                               <h6 className="fw-bold">Bill To:</h6>
-                              <p className="mb-0">Alex Johnson</p>
+                              <p className="mb-0">{billing?.name}</p>
 
-                              <p className="mb-0">alex.johnson@example.com</p>
-                              <p className="mb-0">+880 9876 543 210</p>
-                              <p className="mb-0">
-                                123 Main Street, Chittagong
-                              </p>
+                              <p className="mb-0">{billing?.email}</p>
+                              <p className="mb-0">{billing?.phone}</p>
+                              <p className="mb-0">{billing?.address}</p>
                             </div>
                             <div className="col-sm-6 text-end">
                               <h6 className="fw-bold">Payment information: </h6>
                               <p className="mb-1">
                                 Payment Status:{" "}
                                 <span
-                                  className={`fw-bold  text-capitalize text-success`}
+                                  className={`fw-bold  text-capitalize ${selectedInvoice?.payment_status === "paid" ? "text-success" : selectedInvoice?.payment_status === "pending" ? "text-warning" : "text-danger"}`}
                                 >
-                                  success
+                                  {selectedInvoice?.payment_status}
                                 </span>
                               </p>
                               <p className="mb-1">
                                 Deliver Status:{" "}
                                 <span
-                                  className={`fw-bold text-capitalize bg-success`}
+                                  className={`fw-bold text-capitalize ${selectedInvoice?.delivery_status === "pending" ? "bg-warning" : selectedInvoice?.delivery_status === "delivered" ? "bg-success" : "bg-danger"}`}
                                 >
-                                  delivered
+                                  {selectedInvoice?.delivery_status}
                                 </span>
                               </p>
                               <p className="mb-0">
                                 Total payable:{" "}
                                 <span className="fw-bold text-uppercase">
-                                  1500 tk.
+                                  {parseInt(selectedInvoice?.payableAmount)} tk.
                                 </span>
                               </p>
                             </div>
@@ -214,15 +278,24 @@ const AllOrders = () => {
                                 </tr>
                               </thead>
                               <tbody className="text-dark">
-                                <tr>
-                                  <td className="text-start">Baby Toy Car</td>
+                                {invoiceProducts?.map((product, index) => (
+                                  <tr key={index}>
+                                    <td className="text-start">
+                                      {product?.product_name}
+                                    </td>
 
-                                  <td>Red</td>
-                                  <td>Medium</td>
-                                  <td>2</td>
-                                  <td>750 Tk.</td>
-                                  <td className="text-end">1500 Tk.</td>
-                                </tr>
+                                    <td>{product?.color}</td>
+                                    <td>{product?.size}</td>
+                                    <td>{product?.quantity}</td>
+                                    <td>{product?.price} Tk.</td>
+                                    <td className="text-end">
+                                      {parseInt(
+                                        product?.price * product?.quantity,
+                                      )}{" "}
+                                      Tk.
+                                    </td>
+                                  </tr>
+                                ))}
                               </tbody>
                             </table>
                           </div>
