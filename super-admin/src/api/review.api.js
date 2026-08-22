@@ -1,8 +1,13 @@
-import { data } from "react-router-dom";
 import { reviewApi } from "../helper/api";
 
-export const getAllReview = async () => {
-  const res = await reviewApi.get("/all");
+export const getAllReview = async (query = {}) => {
+  const { page = "", limit = "" } = query;
+  const res = await reviewApi.get("/all", {
+    params: {
+      page,
+      limit,
+    },
+  });
   if (res?.data?.success === true) {
     return res?.data?.data;
   } else {

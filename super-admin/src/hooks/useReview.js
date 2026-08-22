@@ -1,4 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
+
 import {
   getAllReview,
   getReview,
@@ -7,10 +8,14 @@ import {
 } from "../api/review.api";
 import { SuccessToast } from "../helper/helper";
 
-export const useAllReview = () => {
+export const useAllReview = (query) => {
   return useQuery({
-    queryKey: ["reviews"],
-    queryFn: () => getAllReview(),
+    queryKey: ["reviews", query],
+    queryFn: () => getAllReview(query),
+    keepPreviousData: true,
+    onSuccess: () => {
+      SuccessToast("Review retrieved successfully");
+    },
   });
 };
 

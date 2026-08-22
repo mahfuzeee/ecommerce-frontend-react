@@ -4,13 +4,13 @@ import Paginate from "../helper/Paginate";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useAllReview } from "../hooks/useReview";
 import { formatDate } from "../helper/helper";
+import { hostURL } from "../helper/config";
 
 const AllReviews = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const page = searchParams.get("page") || 1;
-  const limit = 10;
-
+  const limit = searchParams.get("limit") || 10;
   //Data fetching using hooks
   const { data, isLoading: reviewLoading } = useAllReview({
     page,
@@ -21,6 +21,17 @@ const AllReviews = () => {
   const allReviews = reviewData?.reviews || [];
 
   const total = reviewData?.totalCount || 0;
+
+  //Page change handler
+  const handlePageChange = ({ selected }) => {
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+
+      params.set("page", selected + 1);
+
+      return params;
+    });
+  };
 
   const StarRating = ({ star }) => {
     star = parseInt(star);
@@ -49,13 +60,15 @@ const AllReviews = () => {
                   <div className="product-review">
                     <div className="product-review__top flx-between">
                       <div className="review_img">
-                        <img src={review?.product?.images[0]} />
+                        <img
+                          style={{ width: "80px", height: "90px" }}
+                          alt={review?.product?.name}
+                          src={review?.product?.images[0]}
+                        />
                         <div>
                           <Link
                             target="_blank"
-                            to={`/super-admin/product-details?product_id={${
-                              review?.product?._id
-                            }}`}
+                            to={`${hostURL}/product-details?product_id=${review?.product?._id}`}
                           >
                             <h5>{review?.product?.name}</h5>
                           </Link>
@@ -96,11 +109,14 @@ const AllReviews = () => {
             <div className="flx-between justify-content-end gap-2">
               <nav aria-label="Page navigation example">
                 <div>
-                  <Paginate
-                    page_no={page}
-                    per_page={limit}
-                    totalCount={total}
-                  />
+                  {allReviews.length > 0 && (
+                    <Paginate
+                      handelPageClick={handlePageChange}
+                      page_no={page}
+                      per_page={limit}
+                      totalCount={total}
+                    />
+                  )}
                 </div>
               </nav>
             </div>
