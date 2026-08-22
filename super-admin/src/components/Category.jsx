@@ -10,6 +10,7 @@ import {
   useUpdateCategory,
   useSingleCategory,
 } from "../hooks/useCategory";
+import { DeleteAlert } from "../helper/helper";
 
 const Category = () => {
   //Search Params
@@ -96,16 +97,13 @@ const Category = () => {
   };
 
   //Handle Delete click
-  const handleDeleteClick = (id) => {
-    deleteCategory.mutate(id, {
-      onSuccess: () => {
-        if (selectedCategoryId === id) {
-          setSelectedCategoryId("");
-          setForm(initialForm);
-          refetchCategories?.();
-        }
-      },
-    });
+  const handleDeleteClick = async (id) => {
+    const res = await DeleteAlert(deleteCategory.mutateAsync, id);
+    if (res) {
+      setSelectedCategoryId("");
+      setForm(initialForm);
+      refetchCategories?.();
+    }
   };
 
   //Handle page change function
@@ -211,7 +209,7 @@ const Category = () => {
                             <td>
                               <div className="d-flex justify-content-end gap-2">
                                 <button
-                                  onClick={handleEditClick(category?._id)}
+                                  onClick={() => handleEditClick(category?._id)}
                                   className="btn btn-success"
                                   data-bs-toggle="modal"
                                   data-bs-target={`#exampleModal_${1}`}
@@ -219,7 +217,9 @@ const Category = () => {
                                   Edit
                                 </button>
                                 <button
-                                  onClick={handleDeleteClick(category?._id)}
+                                  onClick={() =>
+                                    handleDeleteClick(category?._id)
+                                  }
                                   className="btn btn-danger"
                                 >
                                   Delete

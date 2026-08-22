@@ -46,7 +46,7 @@ const adminStore = create((set) => ({
       }
     } catch (error) {
       console.log(error);
-      ErrorToast("Something went wrong");
+      ErrorToast("Invalid credentials");
       set({ adminLoginLoading: false });
       return false;
     }

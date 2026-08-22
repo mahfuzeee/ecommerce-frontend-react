@@ -52,7 +52,7 @@ export const useUpdateCategory = () => {
 export const useDeleteCategory = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id) => deleteCategory(id),
+    mutationFn: (id) => deleteCategory({ id }),
     onSuccess: () => {
       queryClient.invalidateQueries(["categories"]);
       SuccessToast("Category deleted successfully");
