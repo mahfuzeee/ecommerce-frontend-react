@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { getAllOrder, exportOrder } from "../api/order.api";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getAllOrder, exportOrder, updateOrder } from "../api/order.api";
 
 export const useAllOrder = (query) => {
   const { data, isLoading } = useQuery({
@@ -14,5 +14,17 @@ export const useExportOrder = (params) => {
     queryKey: ["export-order", params],
     queryFn: () => exportOrder(params),
     enabled: false,
+  });
+};
+
+//Update order hooks
+export const useUpdateOrder = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ _id, user_id, delivery_status }) =>
+      updateOrder({ _id, user_id, delivery_status }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+    },
   });
 };

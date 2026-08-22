@@ -1,9 +1,10 @@
 import Paginate from "../helper/Paginate";
 import { useState } from "react";
-import { useAllOrder, useExportOrder } from "../hooks/useOrder";
+import { useAllOrder, useExportOrder, useUpdateOrder } from "../hooks/useOrder";
 import { useSingleInvoice } from "../hooks/useInvoice";
 import { useSearchParams } from "react-router-dom";
 import { formatDate } from "../helper/helper";
+import { ToWords } from "to-words";
 
 const AllOrders = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -26,6 +27,7 @@ const AllOrders = () => {
     from: fromDate,
     to: toDate,
   });
+  const updateOrderMutation = useUpdateOrder();
 
   const orderData = Array.isArray(allOrderData)
     ? allOrderData[0]
@@ -41,6 +43,15 @@ const AllOrders = () => {
 
   const billing = selectedInvoice?.cus_details?.[0] || {};
   const invoiceProducts = selectedInvoice?.invoiceProducts || [];
+
+  //Subtotal and total calculation
+  const subTotal = invoiceProducts.reduce(
+    (total, product) => total + parseInt(product.price * product.quantity),
+    0,
+  );
+  const vat = subTotal * 0.15;
+  const shippingFee = 80;
+  const grandTotal = parseInt(subTotal + vat + shippingFee);
 
   //Handle download csv
   const handleDownload = async () => {
@@ -68,6 +79,15 @@ const AllOrders = () => {
     setSelectedInvoiceId(id);
   };
 
+  //Handle delivery status update
+  const handleUpdateOrder = async (_id, user_id, delivery_status) => {
+    await updateOrderMutation.mutateAsync({
+      _id,
+      user_id,
+      delivery_status,
+    });
+  };
+
   //Handle page change function
   const handlePageChange = ({ selected }) => {
     setSearchParams((prev) => {
@@ -78,6 +98,28 @@ const AllOrders = () => {
       return params;
     });
   };
+
+  //Amount to words converstion
+  const toWords = new ToWords({
+    localeCode: "en-IN",
+    converterOptions: {
+      currency: true,
+      ignoreDecimal: false,
+      ignoreZeroCurrency: false,
+      doNotAddOnly: false,
+      currencyOptions: {
+        // can be used to override defaults for the selected locale
+        name: "Taka",
+        plural: "Taka",
+        symbol: "Tk.",
+        fractionalUnit: {
+          name: "Paisa",
+          plural: "Paisa",
+          symbol: "",
+        },
+      },
+    },
+  });
 
   return (
     <div className="dashboard-body__content">
@@ -151,7 +193,7 @@ const AllOrders = () => {
                         </td>
                         <td>
                           <span
-                            className={`badge text-capitalize rounded-pill ${order?.delivery_status === "delivered" ? "bg-success" : order?.delivery_status === "cancel" ? "bg-danger" : "bg-warning"}`}
+                            className={`badge text-capitalize rounded-pill ${order?.delivery_status === "delivered" ? "bg-success" : order?.delivery_status === "cancelled" ? "bg-danger" : "bg-warning"}`}
                           >
                             {order?.delivery_status}
                           </span>
@@ -159,13 +201,19 @@ const AllOrders = () => {
                         <td>
                           <button>
                             <select
-                              // disabled={item?.deliver_status === "cancel"}
+                              onChange={(e) =>
+                                handleUpdateOrder(
+                                  order?._id,
+                                  order?.user_id,
+                                  e.target.value,
+                                )
+                              }
                               className=" common-input border custom"
-                              defaultValue={"pending"}
+                              defaultValue={order?.delivery_status}
                             >
                               <option value={"pending"}>Pending</option>
                               <option value={"delivered"}>Delivered</option>
-                              <option value={"cancel"}>Cancel</option>
+                              <option value={"cancelled"}>Cancel</option>
                             </select>
                           </button>
                         </td>
@@ -336,24 +384,26 @@ const AllOrders = () => {
                           <div className="row justify-content-end">
                             <div className="col-8">
                               <p className="text-danger small fst-italic">
-                                One thousand five hundred
+                                {toWords.convert(Number(grandTotal || 0))}
                               </p>
                             </div>
                             <div className="col-4">
                               <ul className="list-unstyled">
                                 <li className="d-flex justify-content-between mb-2">
-                                  <span>Subtotal:</span> <span>1275 Tk.</span>
+                                  <span>Subtotal:</span>{" "}
+                                  <span>{subTotal} Tk.</span>
                                 </li>
                                 <li className="d-flex justify-content-between mb-2">
                                   <span>Vat (15%):</span>{" "}
-                                  <span>191.25 Tk.</span>
+                                  <span>{vat.toFixed(2)} Tk.</span>
                                 </li>
                                 <li className="d-flex justify-content-between mb-2">
                                   <span>Shipping cost:</span>{" "}
-                                  <span>75 Tk.</span>
+                                  <span>{shippingFee} Tk.</span>
                                 </li>
                                 <li className="d-flex justify-content-between border-top pt-2 fw-bold">
-                                  <span>Total:</span> <span>1500 Tk.</span>
+                                  <span>Total:</span>{" "}
+                                  <span>{grandTotal} Tk.</span>
                                 </li>
                               </ul>
                             </div>

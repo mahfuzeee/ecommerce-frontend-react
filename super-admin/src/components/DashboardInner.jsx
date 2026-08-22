@@ -101,7 +101,7 @@ const DashboardInner = () => {
             <div className="card-body text-center">
               <h6 className="text-secondary mb-2">Total canceled Orders</h6>
               <h2 className="number fw-bold mb-1">
-                {dashboardData?.canceledOrders ?? 0}
+                {dashboardData?.cancelledOrders ?? 0}
               </h2>
             </div>
           </div>

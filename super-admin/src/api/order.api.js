@@ -34,6 +34,9 @@ export const exportOrder = async (params = {}) => {
       },
       responseType: "blob",
     });
+    if (res) {
+      SuccessToast("Orders exported successfully");
+    }
     return res.data;
   } catch (error) {
     console.error("Failed to export orders", error);
@@ -42,7 +45,19 @@ export const exportOrder = async (params = {}) => {
   }
 };
 
-export const updateOrder = async (id, data) =>
-  await orderApi.put(`/${id}`, data);
+export const updateOrder = async (data) => {
+  try {
+    const res = await orderApi.put("/update", data);
+    if (res?.data?.success === true) {
+      SuccessToast(res?.data?.message);
+      return res?.data?.data;
+    }
+    return [];
+  } catch (error) {
+    console.error("Failed to update order", error);
+    ErrorToast(error?.response?.data?.message);
+    return [];
+  }
+};
 
 export const deleteOrder = async (id) => await orderApi.delete(`/${id}`);
