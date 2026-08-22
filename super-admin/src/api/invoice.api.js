@@ -2,9 +2,15 @@ import { invoiceApi } from "../helper/api";
 import { ErrorToast, SuccessToast } from "../helper/helper";
 
 //Get all invoice by single user
-export const getAllInvoice = async () => {
+export const getAllInvoice = async (query = {}) => {
   try {
-    const res = await invoiceApi.get("/all");
+    const { page = "", limit = "" } = query;
+    const res = await invoiceApi.get("/all", {
+      params: {
+        page,
+        limit,
+      },
+    });
     if (res?.data?.success === true) {
       SuccessToast(res?.data?.message);
       return res?.data?.data;

@@ -11,10 +11,10 @@ import {
 } from "../api/invoice.api";
 
 //Get all invoice by single user
-export const useAllInvoice = () => {
+export const useAllInvoice = (query) => {
   return useQuery({
-    queryKey: ["invoices"],
-    queryFn: () => getAllInvoice(),
+    queryKey: ["invoices", query],
+    queryFn: () => getAllInvoice(query),
   });
 };
 

@@ -1,6 +1,7 @@
 import Paginate from "../helper/Paginate";
 import { useState } from "react";
-import { useAllInvoice, useSingleInvoice } from "../hooks/useInvoice";
+import { useAllOrder, useExportOrder } from "../hooks/useOrder";
+import { useSingleInvoice } from "../hooks/useInvoice";
 import { useSearchParams } from "react-router-dom";
 import { formatDate } from "../helper/helper";
 
@@ -12,29 +13,55 @@ const AllOrders = () => {
 
   //State for setting invoice id for viewing a invoice.
   const [selectedInvoiceId, setSelectedInvoiceId] = useState("");
+  //State for setting from and to date
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
 
   //Data fetching using hooks.
-  const { data: allInvoiceData } = useAllInvoice({
+  const { data: allOrderData } = useAllOrder({
     page,
     limit,
   });
+  const { refetch: exportOrders } = useExportOrder({
+    from: fromDate,
+    to: toDate,
+  });
 
-  const invoiceData = Array.isArray(allInvoiceData)
-    ? allInvoiceData[0]
-    : allInvoiceData;
-  const allInvoice = invoiceData?.invoices || [];
-  const totalCount = invoiceData?.totalCount?.[0]?.count || 0;
+  const orderData = Array.isArray(allOrderData)
+    ? allOrderData[0]
+    : allOrderData;
+  const allOrders = orderData?.orders || [];
+  const totalCount = orderData?.totalCount || 0;
 
-  const { data: selectedInvoiceData, isLoading: isInvoiceLoading } =
-    useSingleInvoice(selectedInvoiceId);
+  const { data: selectedInvoiceData } = useSingleInvoice(selectedInvoiceId);
 
   const selectedInvoice = Array.isArray(selectedInvoiceData)
     ? selectedInvoiceData[0]
     : selectedInvoiceData;
 
   const billing = selectedInvoice?.cus_details?.[0] || {};
-  const shipping = selectedInvoice?.ship_details?.[0] || {};
   const invoiceProducts = selectedInvoice?.invoiceProducts || [];
+
+  //Handle download csv
+  const handleDownload = async () => {
+    try {
+      const { data } = await exportOrders();
+      const csvBlob =
+        data instanceof Blob
+          ? data
+          : new Blob([data], { type: "text/csv;charset=utf-8;" });
+      const url = window.URL.createObjectURL(csvBlob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "order.csv");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   //Handle view invoice function
   const handleViewInvoice = (id) => {
@@ -62,7 +89,8 @@ const AllOrders = () => {
             <input
               type="date"
               className="form-control"
-              value={"December 17, 2025"}
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
             />
           </div>
 
@@ -71,12 +99,16 @@ const AllOrders = () => {
             <input
               type="date"
               className="form-control"
-              value={"December 17, 2025"}
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
             />
           </div>
 
           <div className="col-md-3 text-center">
-            <button className="btn d-block btn-primary px-4 mt-2">
+            <button
+              onClick={handleDownload}
+              className="btn d-block btn-primary px-4 mt-2"
+            >
               Download CSV
             </button>
           </div>
@@ -101,8 +133,8 @@ const AllOrders = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {allInvoice.length === 0 && <tr>No Data Found</tr>}
-                    {allInvoice.map((order, index) => (
+                    {allOrders.length === 0 && <tr>No Data Found</tr>}
+                    {allOrders.map((order, index) => (
                       <tr key={index}>
                         <td>{formatDate(order?.createdAt)}</td>
                         <td>{order?.cus_details?.[0]?.name}</td>
@@ -112,16 +144,16 @@ const AllOrders = () => {
                         </td>
                         <td>
                           <span
-                            className={`badge text-capitalize rounded-pill bg-success`}
+                            className={`badge text-capitalize rounded-pill ${order?.payment_status === "paid" ? "bg-success" : "bg-danger"}`}
                           >
-                            success
+                            {order?.payment_status}
                           </span>{" "}
                         </td>
                         <td>
                           <span
-                            className={`badge text-capitalize rounded-pill bg-warning`}
+                            className={`badge text-capitalize rounded-pill ${order?.delivery_status === "delivered" ? "bg-success" : order?.delivery_status === "cancel" ? "bg-danger" : "bg-warning"}`}
                           >
-                            Pending
+                            {order?.delivery_status}
                           </span>
                         </td>
                         <td>
@@ -139,7 +171,7 @@ const AllOrders = () => {
                         </td>
 
                         <td>
-                          <p>{order?.totalPayable}</p>
+                          <p>{order?.payableAmount}</p>
                         </td>
                         <td>
                           <button
@@ -159,7 +191,7 @@ const AllOrders = () => {
               <div className="flx-between justify-content-end gap-2">
                 <nav aria-label="Page navigation example">
                   <div>
-                    {allInvoice.length > 0 && (
+                    {allOrders.length > 0 && (
                       <Paginate
                         handelPageClick={handlePageChange}
                         page_no={page}
