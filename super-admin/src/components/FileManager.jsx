@@ -1,7 +1,15 @@
 import { baseURLFile } from "../helper/config";
-import { SuccessToast } from "../helper/helper";
 import Paginate from "../helper/Paginate";
+import { useSearchParams } from "react-router-dom";
+import { useGetAllFile } from "../hooks/useFile";
 const FileManager = () => {
+  const [searchParams] = useSearchParams();
+
+  const { data } = useGetAllFile();
+  const fileData = data?.data?.data?.[0] || {};
+  const files = fileData.files || [];
+  const totalCount = fileData.totalCount?.[0]?.count || 0;
+
   return (
     <>
       {/* Cover Photo Start */}
@@ -36,41 +44,49 @@ const FileManager = () => {
                 <div className=" p-5">
                   <h4 className="mb-3">Image Gallery</h4>
                   <div className="row g-3">
-                    <div className="col-2 col-xl-3 col-md-4 mb-5">
-                      <div className="card img_g shadow-sm position-relative">
-                        {/* Delete button */}
-                        <button
-                          className="btn  btn-danger position-absolute top-0 end-0 m-1 rounded-circle"
-                        >
-                          &times;
-                        </button>
+                    {files.map((file) => (
+                      <div
+                        className="col-2 col-xl-3 col-md-4 mb-5"
+                        key={file._id}
+                      >
+                        <div className="card img_g shadow-sm position-relative">
+                          {/* Delete button */}
+                          <button className="btn  btn-danger position-absolute top-0 end-0 m-1 rounded-circle">
+                            &times;
+                          </button>
 
-                        {/* Image */}
-                        <img
-                          src={`https://placehold.co/100x100`}
-                          className="card-img-top"
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                          }}
-                        />
+                          {/* Image */}
+                          <img
+                            src={`${baseURLFile}/${file.fileName}`}
+                            alt={file.fileName}
+                            className="card-img-top"
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "cover",
+                            }}
+                          />
 
-                        {/* Card body */}
-                        <div className="card-body p-2 text-center">
-                          <p
-                            className="small text-truncate mb-0 text-primary"
-                            style={{ cursor: "pointer" }}
-                            title="Click to copy"
-                          >
-                            Image1.jpg
-                          </p>
+                          {/* Card body */}
+                          <div className="card-body p-2 text-center">
+                            <p
+                              className="small text-truncate mb-0 text-primary"
+                              style={{ cursor: "pointer" }}
+                              title="Click to copy"
+                            >
+                              {file.fileName}
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    ))}
                   </div>
                   <nav aria-label="Page navigation example">
-                    <Paginate page_no={1} per_page={5} totalCount={10} />
+                    <Paginate
+                      page_no={Number(searchParams.get("page")) || 1}
+                      per_page={5}
+                      totalCount={totalCount}
+                    />
                   </nav>
                 </div>
               </div>

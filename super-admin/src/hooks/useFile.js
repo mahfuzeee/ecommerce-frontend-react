@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { uploadFile } from "../api/file.api";
+import { uploadFile, getAllFile, deleteFile } from "../api/file.api";
 import { SuccessToast } from "../helper/helper";
 
 export const useUploadFile = () => {

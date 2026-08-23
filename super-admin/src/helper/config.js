@@ -1,6 +1,6 @@
 export const hostURL = import.meta.env.VITE_HOST_URL; //http://localhost:5173
 export const baseURL = "/api/v1";
-export const baseURLFile = "/api/v1/get-file";
+export const baseURLFile = `${import.meta.env.VITE_BASE_URL}/get-file`;
 
 /*
 
