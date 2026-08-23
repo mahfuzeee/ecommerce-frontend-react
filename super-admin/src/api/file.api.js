@@ -1,10 +1,21 @@
 import { apiFile } from "../helper/api";
 
 //Upload a file api
-export const uploadFile = async (data) => await apiFile.post("/upload", data);
+export const uploadFile = async (files) => {
+  const formData = new FormData();
+  formData.append("file", files);
+  return await apiFile.post("/upload", formData, { withCredentials: true });
+};
 
 //Get all file api
-export const getAllFile = async () => await apiFile.get("/all");
-
+export const getAllFile = async (filter = {}) => {
+  const { page = "", limit = "" } = filter;
+  return await apiFile.get("/all", {
+    params: {
+      page,
+      limit,
+    },
+  });
+};
 //Delete file api
-export const deleteFile = async (data) => await apiFile.delete("/delete", data);
+export const deleteFile = async (data) => await apiFile.post("/delete", data);

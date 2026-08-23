@@ -44,8 +44,6 @@ export const deleteProduct = async ({ id }) => {
 
 //Create product api
 export const createProduct = async (data) => {
-  console.log(`Receieved data for api: ${JSON.stringify(data)}`);
-
   const res = await productApi.post("/", data);
   if (res?.data?.success === true) {
     return res?.data?.data;

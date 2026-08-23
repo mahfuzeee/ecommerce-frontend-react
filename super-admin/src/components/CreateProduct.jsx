@@ -16,8 +16,6 @@ const CreateProduct = () => {
 
   const { brands = [] } = brandData || {};
 
-  console.log(brands);
-
   const initialForm = {
     name: "",
     short_des: "",

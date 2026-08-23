@@ -16,9 +16,6 @@ export const adminApi = axios.create({
 //File api
 export const apiFile = axios.create({
   baseURL: baseURLFile,
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 
 //User api

@@ -1,14 +1,38 @@
 import { baseURLFile } from "../helper/config";
 import Paginate from "../helper/Paginate";
 import { useSearchParams } from "react-router-dom";
-import { useGetAllFile } from "../hooks/useFile";
+import { useState } from "react";
+import { useGetAllFile, useUploadFile, useDeleteFile } from "../hooks/useFile";
 const FileManager = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const page = Number(searchParams.get("page") || 1);
+  const limit = searchParams.get("limit") || 8;
 
-  const { data } = useGetAllFile();
+  const [file, setFile] = useState(null);
+
+  const { data } = useGetAllFile({ page, limit });
   const fileData = data?.data?.data?.[0] || {};
   const files = fileData.files || [];
   const totalCount = fileData.totalCount?.[0]?.count || 0;
+
+  //Upload file section
+  const { mutateAsync: uploadFile } = useUploadFile();
+  const { mutateAsync: deleteFile } = useDeleteFile();
+
+  const handleDeleteClick = (fileId, fileName) => {
+    deleteFile({ _id: fileId, filename: fileName });
+  };
+
+  //Handle Page change
+  const handlePageChange = ({ selected }) => {
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+
+      params.set("page", selected + 1);
+
+      return params;
+    });
+  };
 
   return (
     <>
@@ -30,11 +54,21 @@ const FileManager = () => {
                   <h4 className="mb-3">Upload Files</h4>
                   {/* Upload Input */}
                   <div className="mb-3">
-                    <input type="file" className="form-control" multiple />
+                    <input
+                      onChange={(e) => setFile(e.target.files[0] || null)}
+                      type="file"
+                      name="file"
+                      className="form-control"
+                    />
                   </div>
 
                   <div>
-                    <button className="btn btn-danger ">Upload File</button>
+                    <button
+                      onClick={() => file && uploadFile(file)}
+                      className="btn btn-danger "
+                    >
+                      Upload File
+                    </button>
                   </div>
                 </div>
               </div>
@@ -51,7 +85,14 @@ const FileManager = () => {
                       >
                         <div className="card img_g shadow-sm position-relative">
                           {/* Delete button */}
-                          <button className="btn  btn-danger position-absolute top-0 end-0 m-1 rounded-circle">
+                          <button
+                            onClick={() =>
+                              handleDeleteClick(file._id, file.fileName)
+                            }
+                            className="btn btn-danger position-absolute top-0 end-0 m-1 rounded-circle"
+                            type="button"
+                            aria-label={`Delete ${file.fileName}`}
+                          >
                             &times;
                           </button>
 
@@ -82,11 +123,14 @@ const FileManager = () => {
                     ))}
                   </div>
                   <nav aria-label="Page navigation example">
-                    <Paginate
-                      page_no={Number(searchParams.get("page")) || 1}
-                      per_page={5}
-                      totalCount={totalCount}
-                    />
+                    {files.length > 0 && (
+                      <Paginate
+                        handelPageClick={handlePageChange}
+                        page_no={page}
+                        per_page={limit}
+                        totalCount={totalCount}
+                      />
+                    )}
                   </nav>
                 </div>
               </div>
