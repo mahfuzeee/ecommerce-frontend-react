@@ -1,10 +1,11 @@
 import Paginate from "../helper/Paginate";
-import { useState } from "react";
+import { useState, useCallback, useRef, useContext } from "react";
 import { useAllOrder, useExportOrder, useUpdateOrder } from "../hooks/useOrder";
 import { useSingleInvoice } from "../hooks/useInvoice";
 import { useSearchParams } from "react-router-dom";
 import { formatDate } from "../helper/helper";
 import { ToWords } from "to-words";
+import { useReactToPrint } from "react-to-print";
 
 const AllOrders = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -119,6 +120,44 @@ const AllOrders = () => {
         },
       },
     },
+  });
+
+  //Print invoice Section
+  const handleAfterPrint = useCallback(() => {
+    console.log("`onAfterPrint` called");
+  }, []);
+
+  const handleBeforePrint = useCallback(() => {
+    console.log("`onBeforePrint` called");
+    return Promise.resolve();
+  }, []);
+  const componentRef = useRef(null);
+  const printFn = useReactToPrint({
+    contentRef: componentRef,
+    documentTitle: "AwesomeFileName",
+    onAfterPrint: handleAfterPrint,
+    onBeforePrint: handleBeforePrint,
+    copyStyles: true, // 👈 copies styles from your app into print iframe
+    pageStyle: `
+    @page {
+      size: A4;
+      margin: 4mm;
+    }
+    body {
+      -webkit-print-color-adjust: exact !important;
+      color-adjust: exact !important;
+      font-family: Arial, sans-serif;
+      padding: 0px;
+    }
+    table {
+      border-collapse: collapse !important;
+      width: 100%;
+    }
+    th, td {
+      border: 1px solid #ccc !important;
+      padding: 6px !important;
+    }
+  `,
   });
 
   return (
@@ -284,7 +323,11 @@ const AllOrders = () => {
                     <div className="col-12">
                       <div className="container my-5">
                         {/* Invoice Content */}
-                        <div className="p-5 bg-white">
+                        <div
+                          className="p-5 bg-white"
+                          id="invoice"
+                          ref={componentRef}
+                        >
                           {/* Header */}
                           <div className="row mb-4 border-bottom pb-3">
                             <div className="col-sm-6">
@@ -431,7 +474,11 @@ const AllOrders = () => {
                 >
                   Close
                 </button>
-                <button type="button" className="btn btn-primary">
+                <button
+                  onClick={printFn}
+                  type="button"
+                  className="btn btn-primary"
+                >
                   Print
                 </button>
               </div>
