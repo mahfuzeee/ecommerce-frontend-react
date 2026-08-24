@@ -1,24 +1,17 @@
 import { FaRegStar, FaStar } from "react-icons/fa";
 import { Swiper, SwiperSlide } from "swiper/react";
-import parse from "html-react-parser";
 import Skeleton from "react-loading-skeleton";
 import "swiper/css";
 import "swiper/css/free-mode";
 import "swiper/css/navigation";
 import "swiper/css/thumbs";
 import { FreeMode, Navigation, Thumbs } from "swiper/modules";
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import {
-  formatDate,
-  ErrorToast,
-  SuccessToast,
-  IsEmpty,
-} from "../helper/helper";
+import { useState } from "react";
+import { formatDate, ErrorToast, IsEmpty } from "../helper/helper";
 import { useSearchParams, useNavigate } from "react-router-dom"; // Import useSearchParams
 import { useSingleProduct } from "../hooks/useProduct";
 import cartStore from "../store/cart.store";
-import { useAllReview, useSingleReview } from "../hooks/useReview";
+import { useSingleReview } from "../hooks/useReview";
 
 const ProductDetails = () => {
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
@@ -29,6 +22,8 @@ const ProductDetails = () => {
   //Product Section
   const { data, isLoading } = useSingleProduct(id);
   const product = data || {};
+
+  console.log(product);
 
   const discount_percent = Math.round(
     ((product?.price - product?.discountPrice) / product?.price) * 100,
@@ -103,15 +98,15 @@ const ProductDetails = () => {
         <div className="row gy-4">
           {/* Left Column - Product Images and Description */}
 
-          {product === null ? (
+          {isLoading ? (
             <>
-              {[...Array(6)].map(() => {
-                <div className="col-lg-6">
+              {[...Array(6)].map((_, index) => (
+                <div className="col-lg-6" key={index}>
                   <div className="Skeleton">
                     <Skeleton count={8} />
                   </div>
-                </div>;
-              })}
+                </div>
+              ))}
             </>
           ) : (
             <div className="col-lg-6">
@@ -139,7 +134,7 @@ const ProductDetails = () => {
                         className="mySwiper2"
                       >
                         {product?.images?.map((img, index) => (
-                          <SwiperSlide>
+                          <SwiperSlide key={`main-image-${index}`}>
                             <div
                               key={index}
                               className="main-product-image mb-3"
@@ -162,7 +157,7 @@ const ProductDetails = () => {
                           className="mySwiper"
                         >
                           {product?.images?.map((img, index) => (
-                            <SwiperSlide>
+                            <SwiperSlide key={`thumbnail-${index}`}>
                               <div
                                 key={index}
                                 className="main-product-image mb-3"
@@ -195,8 +190,11 @@ const ProductDetails = () => {
                 >
                   <div className="product-review-wrapper">
                     {!reviewLoading &&
-                      reviews.map((review) => (
-                        <div className="product-review">
+                      reviews.map((review, index) => (
+                        <div
+                          className="product-review"
+                          key={review?._id || index}
+                        >
                           <div className="product-review__top flx-between">
                             <div className="product-review__rating flx-align">
                               <div className="d-flex align-items-center gap-1">
