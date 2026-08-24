@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import useProduct from "../hooks/useProduct";
 
 const ArrivalOne = () => {
-  const { data, isLoading } = useProduct({ page: 1, limit: 6 });
+  const { data, isLoading } = useProduct({ page: 1, limit: 8 });
 
   const { products = [] } = data || {};
 
@@ -80,7 +80,7 @@ const ArrivalOne = () => {
 
         <div className="text-center mt-64">
           <Link
-            to="/all-products?category_id=0&brand_id=0&remark=0&keyword=0&per_page=12&page_no=1"
+            to={`/all-products?category_id=${""}&brand_id=${""}&remark=${""}&keyword=${""}&limit=12&page=1`}
             className="btn btn-main btn-lg pill fw-300"
           >
             View All Products

@@ -2,6 +2,8 @@ import Slider from "react-slick";
 import useBrand from "../hooks/useBrand";
 import { Link } from "react-router-dom";
 
+const appUrl = import.meta.env.VITE_APP_URL || "http://localhost:5173";
+
 const BrandSectionOne = () => {
   const { data, isLoading } = useBrand({ page: 1, limit: 10 });
 
@@ -65,7 +67,14 @@ const BrandSectionOne = () => {
                   className="brand-item inner d-grid gap-2 text-center align-items-center justify-content-center"
                 >
                   <Link
-                    to={`all-products?category_id=${""}&brand_id=${brand._id}&remark=${""}&keyword=${""}&limit=12&page=1`}
+                    to={`${appUrl}/all-products?${new URLSearchParams({
+                      category_id: "",
+                      brand_id: brand._id,
+                      remark: "",
+                      keyword: "",
+                      limit: "12",
+                      page: "1",
+                    })}`}
                   >
                     <img
                       style={{ height: "90px", width: "80px" }}
