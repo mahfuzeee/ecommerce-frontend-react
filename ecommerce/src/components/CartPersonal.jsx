@@ -4,10 +4,11 @@ import cartStore from "../store/cart.store";
 import userStore from "../store/user.store";
 import { useCreateInvoice } from "../hooks/useInvoice";
 import { formatDate } from "../helper/helper";
+import { ErrorToast, IsEmpty } from "../helper/helper";
 
 const CartPersonal = () => {
   const { cart, getCart } = cartStore();
-  const { user, userRequest } = userStore();
+  const { user } = userStore();
 
   useEffect(() => {
     (async () => {
@@ -29,8 +30,23 @@ const CartPersonal = () => {
 
   const { mutate: createInvoice } = useCreateInvoice();
 
+  const validation = [
+    {
+      field: user?.shippingName,
+      message: "Please fill shipping name first",
+    },
+    {
+      field: user?.shippingAddress,
+      message: "Please fill shipping addresses first",
+    },
+  ];
   const handleCreateInvoice = async () => {
-    await createInvoice();
+    for (const { field, message } of validation) {
+      if (IsEmpty(field)) {
+        return ErrorToast(message);
+      }
+    }
+    createInvoice();
     await getCart();
   };
 
@@ -351,12 +367,12 @@ const CartPersonal = () => {
                     You have {cart?.length} items
                   </span>
                   <span className="amount text-heading fw-500">
-                    ৳{subTotal}
+                    ৳{subTotal.toFixed(2)}
                   </span>
                 </li>
                 <li className="billing-list__item flx-between">
                   <span className="text text-heading fw-500">Vat(15%)</span>
-                  <span className="amount text-body">৳{vat}</span>
+                  <span className="amount text-body">৳{vat.toFixed(2)}</span>
                 </li>
                 <li className="billing-list__item flx-between">
                   <span className="text text-heading fw-500">Shipping Fee</span>

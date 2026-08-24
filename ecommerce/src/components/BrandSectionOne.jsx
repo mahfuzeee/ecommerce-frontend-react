@@ -1,8 +1,7 @@
 import Slider from "react-slick";
 import useBrand from "../hooks/useBrand";
 import { Link } from "react-router-dom";
-
-const appUrl = import.meta.env.VITE_APP_URL || "http://localhost:5173";
+import { appUrl } from "../helper/config";
 
 const BrandSectionOne = () => {
   const { data, isLoading } = useBrand({ page: 1, limit: 10 });

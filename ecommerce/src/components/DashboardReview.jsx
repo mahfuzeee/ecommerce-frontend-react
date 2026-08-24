@@ -63,6 +63,16 @@ const DashboardReview = () => {
                 </tr>
               </thead>
               <tbody>
+                {isLoading && (
+                  <tr>
+                    <td colSpan={6}>Loading...</td>
+                  </tr>
+                )}
+                {products.length === 0 && (
+                  <tr>
+                    <td colSpan={6}>No data found</td>
+                  </tr>
+                )}
                 {products.map((item, index) => (
                   <tr key={index}>
                     <td>

@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useEffect } from "react";
 import cartStore from "../store/cart.store";
 import { ErrorToast } from "../helper/helper";
+import { appUrl } from "../helper/config";
 
 const Cart = () => {
   //Cart store objecsts
@@ -151,10 +152,14 @@ const Cart = () => {
                         <span className="cart-item__totalPrice text-body font-18 fw-400 mb-0">
                           ৳
                           {item?.product?.isDiscounted
-                            ? Number(item?.product?.discountPrice).toFixed(2) *
-                              Number(item?.quantity)
-                            : Number(item?.product?.price).toFixed(2) *
-                              Number(item?.quantity)}
+                            ? (
+                                Number(item?.product?.discountPrice) *
+                                Number(item?.quantity)
+                              ).toFixed(2)
+                            : (
+                                Number(item?.product?.price) *
+                                Number(item?.quantity)
+                              ).toFixed(2)}
                         </span>
                       </td>
                     </tr>
@@ -168,7 +173,14 @@ const Cart = () => {
 
           <div className="cart-content__bottom flx-between gap-2">
             <Link
-              to={`all-products?category_id=${""}&brand_id=${""}&remark=${""}&keyword=${""}&limit=12&page=1`}
+              to={`${appUrl}/all-products?${new URLSearchParams({
+                category_id: "",
+                brand_id: "",
+                remark: "",
+                keyword: "",
+                limit: "12",
+                page: "1",
+              })}`}
               className="btn btn-outline-light flx-align gap-2 pill btn-lg"
             >
               <span className="icon line-height-1 font-20">
@@ -176,15 +188,17 @@ const Cart = () => {
               </span>
               Continue Shopping
             </Link>
-            <Link
-              to="/cart-personal"
-              className="btn btn-main flx-align gap-2 pill btn-lg"
-            >
-              Next
-              <span className="icon line-height-1 font-20">
-                <i className="las la-arrow-right" />
-              </span>
-            </Link>
+            {cart.length > 0 && (
+              <Link
+                to="/cart-personal"
+                className="btn btn-main flx-align gap-2 pill btn-lg"
+              >
+                Next
+                <span className="icon line-height-1 font-20">
+                  <i className="las la-arrow-right" />
+                </span>
+              </Link>
+            )}
           </div>
         </div>
       </div>

@@ -24,8 +24,8 @@ const DashboardOrder = () => {
     ? selectedInvoiceData[0]
     : selectedInvoiceData;
 
-  const billing = selectedInvoice?.cus_details?.[0] || {};
-  const shipping = selectedInvoice?.ship_details?.[0] || {};
+  const billing = selectedInvoice?.cus_details || {};
+  const shipping = selectedInvoice?.ship_details || {};
   const invoiceProducts = selectedInvoice?.invoiceProducts || [];
 
   const subTotal = invoiceProducts.reduce(
@@ -49,7 +49,7 @@ const DashboardOrder = () => {
 
   const printFn = useReactToPrint({
     contentRef: componentRef,
-    documentTitle: "AwesomeFileName",
+    documentTitle: "Invoice",
     onAfterPrint: handleAfterPrint,
     onBeforePrint: handleBeforePrint,
     copyStyles: true, // 👈 copies styles from your app into print iframe
@@ -203,7 +203,7 @@ const DashboardOrder = () => {
                 <div className="profile">
                   <div className="row gy-4">
                     <div className="col-12">
-                      <div className="container my-5">
+                      <div ref={componentRef} className="container my-5">
                         {/* Invoice Content */}
                         {isInvoiceLoading ? (
                           <div className="text-center">
@@ -345,7 +345,9 @@ const DashboardOrder = () => {
                                   </li>
                                   <li className="d-flex justify-content-between mb-2">
                                     <span>Vat (15%):</span>{" "}
-                                    <span>{vat ? `${vat} Tk.` : "N/A"}</span>
+                                    <span>
+                                      {vat ? `${vat.toFixed(2)} Tk.` : "N/A"}
+                                    </span>
                                   </li>
                                   <li className="d-flex justify-content-between mb-2">
                                     <span>Shipping cost:</span>{" "}
@@ -358,7 +360,9 @@ const DashboardOrder = () => {
                                   <li className="d-flex justify-content-between border-top pt-2 fw-bold">
                                     <span>Total:</span>{" "}
                                     <span>
-                                      {grandTotal ? `${grandTotal} Tk.` : "N/A"}
+                                      {grandTotal
+                                        ? `${parseInt(grandTotal)} Tk.`
+                                        : "N/A"}
                                     </span>
                                   </li>
                                 </ul>
