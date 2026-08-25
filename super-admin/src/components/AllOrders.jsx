@@ -42,7 +42,7 @@ const AllOrders = () => {
     ? selectedInvoiceData[0]
     : selectedInvoiceData;
 
-  const billing = selectedInvoice?.cus_details?.[0] || {};
+  const billing = selectedInvoice?.cus_details || {};
   const invoiceProducts = selectedInvoice?.invoiceProducts || [];
 
   //Subtotal and total calculation
@@ -373,7 +373,7 @@ const AllOrders = () => {
                               <p className="mb-1">
                                 Deliver Status:{" "}
                                 <span
-                                  className={`fw-bold text-capitalize ${selectedInvoice?.delivery_status === "pending" ? "bg-warning" : selectedInvoice?.delivery_status === "delivered" ? "bg-success" : "bg-danger"}`}
+                                  className={`fw-bold text-capitalize ${selectedInvoice?.delivery_status === "pending" ? "text-warning" : selectedInvoice?.delivery_status === "delivered" ? "text-success" : "text-danger"}`}
                                 >
                                   {selectedInvoice?.delivery_status}
                                 </span>

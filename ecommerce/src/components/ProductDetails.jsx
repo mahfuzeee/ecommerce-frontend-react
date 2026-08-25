@@ -1,6 +1,7 @@
 import { FaRegStar, FaStar } from "react-icons/fa";
 import { Swiper, SwiperSlide } from "swiper/react";
 import Skeleton from "react-loading-skeleton";
+import parse from "html-react-parser";
 import "swiper/css";
 import "swiper/css/free-mode";
 import "swiper/css/navigation";
@@ -22,8 +23,6 @@ const ProductDetails = () => {
   //Product Section
   const { data, isLoading } = useSingleProduct(id);
   const product = data || {};
-
-  console.log(product);
 
   const discount_percent = Math.round(
     ((product?.price - product?.discountPrice) / product?.price) * 100,
@@ -174,7 +173,7 @@ const ProductDetails = () => {
                       Product Description
                     </h5>
                     <div className="product-details__item">
-                      {product.description}
+                      {parse(product.description) || ""}
                     </div>
                   </div>
                   {/* Product Details Content End */}
@@ -256,10 +255,7 @@ const ProductDetails = () => {
                       </span>
                     )}
                   </h4>
-                  <p>
-                    {/* {product !== null &&
-                      product?.description.split(" ").slice(0, 20).join(" ")} */}
-                  </p>
+                  <p>{product?.short_des}</p>
                 </div>
 
                 <div className="size py-3">

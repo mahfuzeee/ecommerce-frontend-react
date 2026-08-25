@@ -68,7 +68,7 @@ const AllProduct = () => {
   const handleCategoryChange = (category_id) => {
     setSearchParams((prev) => {
       const params = new URLSearchParams(prev);
-
+      params.set("brand_id", "");
       params.set("category_id", category_id);
 
       params.set("page", 1);
@@ -81,7 +81,7 @@ const AllProduct = () => {
   const handleBrandChange = (brand_id) => {
     setSearchParams((prev) => {
       const params = new URLSearchParams(prev);
-
+      params.set("category_id", "");
       params.set("brand_id", brand_id);
 
       params.set("page", 1);
@@ -239,7 +239,10 @@ const AllProduct = () => {
                               className="filter-sidebar-list__item courser"
                             >
                               <span className="filter-sidebar-list__text">
-                                {category.name} <span className="qty">9</span>
+                                {category?.name}{" "}
+                                <span className="qty">
+                                  {category?.productCount}
+                                </span>
                               </span>
                             </li>
                           ))}
@@ -263,7 +266,10 @@ const AllProduct = () => {
                               className="filter-sidebar-list__item courser"
                             >
                               <span className="filter-sidebar-list__text">
-                                {brand.name} <span className="qty">10</span>
+                                {brand.name}{" "}
+                                <span className="qty">
+                                  {brand?.productCount}
+                                </span>
                               </span>
                             </li>
                           ))}
@@ -301,6 +307,7 @@ const AllProduct = () => {
                                 className="link w-100"
                               >
                                 <img
+                                  style={{ width: "100%", height: "100%" }}
                                   src={product.images[0]}
                                   alt={product.slug}
                                   className="cover-img"

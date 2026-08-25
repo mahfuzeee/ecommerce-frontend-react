@@ -26,6 +26,7 @@ export const createInvoice = async () => {
     }
     return [];
   } catch (error) {
+    ErrorToast(error.response?.data?.message || "Failed to create invoice");
     console.error("Failed to create invoice", error);
     return [];
   }

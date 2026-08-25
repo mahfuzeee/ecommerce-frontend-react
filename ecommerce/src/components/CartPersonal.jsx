@@ -28,7 +28,7 @@ const CartPersonal = () => {
   const total = subTotal + vat + shippingFee;
   //console.log(JSON.stringify(user));
 
-  const { mutate: createInvoice } = useCreateInvoice();
+  const { mutateAsync: createInvoice } = useCreateInvoice();
 
   const validation = [
     {
@@ -46,7 +46,7 @@ const CartPersonal = () => {
         return ErrorToast(message);
       }
     }
-    createInvoice();
+    await createInvoice();
     await getCart();
   };
 
