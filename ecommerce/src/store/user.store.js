@@ -44,7 +44,7 @@ const userStore = create((set) => ({
     } catch (error) {
       console.log(error);
       set({ userLoginLoading: false });
-      ErrorToast("Something went wrong");
+      ErrorToast(error?.response?.data?.message);
       return false;
     }
   },

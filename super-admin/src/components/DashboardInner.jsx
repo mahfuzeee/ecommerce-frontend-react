@@ -21,7 +21,7 @@ const DashboardInner = () => {
             <div className="card-body text-center">
               <h6 className="text-secondary mb-2">Total Users</h6>
               <h2 className="number fw-bold mb-1">
-                {dashboardData?.totalUsers}
+                {dashboardData?.totalUsers ?? 0}
               </h2>
             </div>
           </div>
@@ -31,7 +31,7 @@ const DashboardInner = () => {
             <div className="card-body text-center">
               <h6 className="text-secondary mb-2">Total Products</h6>
               <h2 className="number fw-bold mb-1">
-                {dashboardData?.totalProducts}
+                {dashboardData?.totalProducts ?? 0}
               </h2>
             </div>
           </div>
@@ -41,7 +41,7 @@ const DashboardInner = () => {
             <div className="card-body text-center">
               <h6 className="text-secondary mb-2">Total Categories</h6>
               <h2 className="number fw-bold mb-1">
-                {dashboardData?.totalCategories}
+                {dashboardData?.totalCategories ?? 0}
               </h2>
             </div>
           </div>
@@ -51,7 +51,7 @@ const DashboardInner = () => {
             <div className="card-body text-center">
               <h6 className="text-secondary mb-2">Total Brands</h6>
               <h2 className="number fw-bold mb-1">
-                {dashboardData?.totalBrands}
+                {dashboardData?.totalBrands ?? 0}
               </h2>
             </div>
           </div>
@@ -61,7 +61,7 @@ const DashboardInner = () => {
             <div className="card-body text-center">
               <h6 className="text-secondary mb-2">Total Orders</h6>
               <h2 className="number fw-bold mb-1">
-                {dashboardData?.totalOrders}
+                {dashboardData?.totalOrders ?? 0}
               </h2>
             </div>
           </div>
@@ -71,7 +71,7 @@ const DashboardInner = () => {
             <div className="card-body text-center">
               <h6 className="text-secondary mb-2">Total Income</h6>
               <h2 className="number fw-bold mb-1">
-                {Math.round(dashboardData?.totalSalesAmount) ?? 0}
+                {Math.round(dashboardData?.totalSalesAmount || 0)}
               </h2>
             </div>
           </div>
