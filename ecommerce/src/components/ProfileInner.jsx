@@ -117,7 +117,7 @@ const ProfileInner = () => {
         return ErrorToast(message);
       }
     }
-    console.log(JSON.stringify(userData));
+    //console.log(JSON.stringify(userData));
     await userUpdateRequest(userData);
     await userRequest();
   };

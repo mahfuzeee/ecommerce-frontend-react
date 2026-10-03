@@ -75,7 +75,7 @@ const adminStore = create((set) => ({
       let res = await adminApi.get("/");
 
       if (res?.data?.success === true) {
-        set({ admin: res?.data?.data });
+        set({ admin: res?.data?.data[0] ?? null });
 
         return true;
       }

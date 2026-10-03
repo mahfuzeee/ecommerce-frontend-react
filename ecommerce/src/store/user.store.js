@@ -21,7 +21,7 @@ const userStore = create((set) => ({
     } catch (error) {
       console.log(error);
       set({ userRegisterLoading: false });
-      ErrorToast("Something went wrong");
+      ErrorToast(error?.response?.data?.message);
       return false;
     }
   },
@@ -57,7 +57,7 @@ const userStore = create((set) => ({
       set({ userLoading: true });
       const res = await userApi.get("/");
       if (res?.data?.success === true) {
-        set({ user: res?.data?.data[0] });
+        set({ user: res?.data?.data });
         set({ userLoading: false });
 
         return true;
@@ -68,7 +68,7 @@ const userStore = create((set) => ({
     } catch (error) {
       console.log(error);
       set({ userLoading: false });
-      ErrorToast("Something went wrong");
+      ErrorToast(error?.response?.data?.message);
       return false;
     }
   },
