@@ -38,6 +38,8 @@ const MasterLayout = ({ children }) => {
             <button
               type="button"
               className="dashboard-sidebar__close d-lg-none d-flex text-body hover-text-main"
+              onClick={dashboardControl}
+              aria-label="Close sidebar"
             >
               <i className="las la-times" />
             </button>
@@ -145,12 +147,16 @@ const MasterLayout = ({ children }) => {
                 <button
                   type="button"
                   className="icon-btn bar-icon text-heading bg-gray-seven flx-center"
+                  onClick={dashboardControl}
+                  aria-label="Open sidebar"
                 >
                   <i className="las la-bars" />
                 </button>
                 <button
                   type="button"
                   className="icon-btn arrow-icon text-heading bg-gray-seven flx-center"
+                  onClick={dashboardControl}
+                  aria-label="Expand sidebar"
                 >
                   <img src="assets/images/icons/angle-right.svg" alt="" />
                 </button>
