@@ -18,7 +18,11 @@ const AllProducts = () => {
   const page = searchParams.get("page") || 1;
   const limit = searchParams.get("limit") || 10;
 
-  const { data, isLoading } = useAllProduct({ page, limit });
+  const {
+    data,
+    isLoading,
+    refetch: refetchProduct,
+  } = useAllProduct({ page, limit });
   const { products = [], pagination } = data || {};
 
   const { data: categoryData } = useGetAllCategory();
@@ -102,19 +106,12 @@ const AllProducts = () => {
   };
 
   const handleDeleteClick = async (productId) => {
-    await DeleteAlert(
-      deleteProduct.mutate(
-        { id: productId },
-        {
-          onSuccess: () => {
-            if (selectedProductId === productId) {
-              setSelectedProductId("");
-              setForm(initialForm);
-            }
-          },
-        },
-      ),
-    );
+    const res = await DeleteAlert(deleteProduct.mutateAsync, productId);
+    if (res) {
+      setSelectedProductId("");
+      setForm(initialForm);
+      refetchProduct?.();
+    }
   };
 
   const handleUpdateSubmit = async () => {
