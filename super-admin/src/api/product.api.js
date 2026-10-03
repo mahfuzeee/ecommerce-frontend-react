@@ -33,7 +33,7 @@ export const getProduct = async (id) => {
   }
 };
 
-export const deleteProduct = async ({ id }) => {
+export const deleteProduct = async (id) => {
   const res = await productApi.delete(`/${id}`);
   if (res?.data?.success === true) {
     return res?.data?.data;

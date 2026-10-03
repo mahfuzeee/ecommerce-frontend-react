@@ -43,7 +43,7 @@ export const useDeleteProduct = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id }) => deleteProduct({ id }),
+    mutationFn: (id) => deleteProduct(id),
     onSuccess: () => {
       queryClient.invalidateQueries(["products"]);
       SuccessToast("Product deleted successfully");
