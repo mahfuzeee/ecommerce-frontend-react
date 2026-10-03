@@ -1,0 +1,13 @@
+{
+  "installCommand": "npm ci --prefix ecommerce && npm ci --prefix super-admin",
+  "buildCommand": "npm --prefix ecommerce run build && npm --prefix super-admin run build && mkdir -p ecommerce/dist/super-admin && cp -R super-admin/dist/. ecommerce/dist/super-admin/",
+  "outputDirectory": "ecommerce/dist",
+  "rewrites": [
+    { "source": "/super-admin", "destination": "/super-admin/index.html" },
+    {
+      "source": "/super-admin/:path*",
+      "destination": "/super-admin/index.html"
+    },
+    { "source": "/:path*", "destination": "/index.html" }
+  ]
+}

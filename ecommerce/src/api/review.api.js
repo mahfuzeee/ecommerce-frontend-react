@@ -1,4 +1,3 @@
-import { data } from "react-router-dom";
 import { reviewApi } from "../helper/api";
 
 export const getAllReview = async () => {
