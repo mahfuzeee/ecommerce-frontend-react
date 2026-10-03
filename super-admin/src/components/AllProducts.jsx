@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ReactQuill from "react-quill-new";
 import { Link, useSearchParams } from "react-router-dom";
-import { formats, modules } from "../helper/helper";
+import { formats, modules, DeleteAlert } from "../helper/helper";
 import Paginate from "../helper/Paginate";
 import {
   useAllProduct,
@@ -101,21 +101,23 @@ const AllProducts = () => {
     setSelectedProductId(productId);
   };
 
-  const handleDeleteClick = (productId) => {
-    deleteProduct.mutate(
-      { id: productId },
-      {
-        onSuccess: () => {
-          if (selectedProductId === productId) {
-            setSelectedProductId("");
-            setForm(initialForm);
-          }
+  const handleDeleteClick = async (productId) => {
+    await DeleteAlert(
+      deleteProduct.mutate(
+        { id: productId },
+        {
+          onSuccess: () => {
+            if (selectedProductId === productId) {
+              setSelectedProductId("");
+              setForm(initialForm);
+            }
+          },
         },
-      },
+      ),
     );
   };
 
-  const handleUpdateSubmit = () => {
+  const handleUpdateSubmit = async () => {
     if (!selectedProductId) return;
 
     const payload = {
@@ -143,7 +145,7 @@ const AllProducts = () => {
       description: form.description,
     };
 
-    updateProduct.mutate(
+    updateProduct.mutateAsync(
       { id: selectedProductId, data: payload },
       {
         onSuccess: () => {

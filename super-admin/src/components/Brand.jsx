@@ -1,4 +1,3 @@
-import { baseURLFile } from "../helper/config";
 import Paginate from "../helper/Paginate";
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
